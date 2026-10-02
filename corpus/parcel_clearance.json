@@ -1,0 +1,19 @@
+{
+  "id": "parcel_clearance",
+  "title": "Parcel clearance fee (synthetic)",
+  "lang": "en",
+  "turns": [
+    {"t": 0,  "text": "Hello, this is Swift Parcel Express customer desk. A parcel in your name has been held and it contains prohibited items."},
+    {"t": 14, "text": "You must pay the clearance fee immediately or a case will be registered against you."},
+    {"t": 28, "text": "Transfer the fee now. Note the account details."},
+    {"t": 42, "text": "Account number one zero two zero three zero four zero five zero six zero, name Blue Orchid Traders, IFSC H D F C zero zero zero one two three four."},
+    {"t": 58, "text": "Also download the tracking app from http://parcel-clearance.example/clear.apk to confirm."},
+    {"t": 72, "text": "Hello? Are you there? Hurry up."}
+  ],
+  "expect": {
+    "account": ["102030405060"],
+    "ifsc": ["HDFC0001234"],
+    "apk": ["http://parcel-clearance.example/clear.apk"],
+    "states_in_order": ["PANIC", "STALLING", "BAITING", "EXTRACTING", "STALLING"]
+  }
+}

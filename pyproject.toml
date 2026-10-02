@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "chakravyuh"
+version = "0.1.0"
+description = "Open-source, local-first counter-scam voice agent for India"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Joel Anthony" }, { name = "Jammy" }]
+dependencies = []                      # core logic is stdlib-only on purpose
+
+[project.optional-dependencies]
+dev = ["pytest"]
+audio = []                             # owned by Jammy: faster-whisper, silero-vad, piper-tts, sounddevice
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]

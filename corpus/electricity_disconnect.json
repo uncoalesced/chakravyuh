@@ -1,0 +1,24 @@
+{
+  "id": "electricity_disconnect",
+  "title": "Electricity disconnection (synthetic)",
+  "lang": "hi",
+  "turns": [
+    {"t": 0,   "text": "Hello, main Sunrise Power Board se bol raha hoon. Aapka bijli connection aaj raat nau baje kaat diya jayega, teen hazaar chaar sau pachaas rupaye ka bill pending hai."},
+    {"t": 12,  "text": "Sir jaldi payment kijiye warna connection disconnect ho jayega. Abhi turant."},
+    {"t": 26,  "text": "Theek hai baba, UPI app kholiye aur payment kijiye."},
+    {"t": 40,  "text": "UPI ID likhiye: quickbillpay98@axl"},
+    {"t": 55,  "text": "Haan quickbillpay98@axl, amount 3450 rupees bhejiye."},
+    {"t": 70,  "text": "Agar nahi hua to supervisor ka number hai nau aath saat chhe paanch chaar teen do ek shunya, call kar lena."},
+    {"t": 85,  "text": "Payment fail ho gaya? Phir se karo, jaldi karo."},
+    {"t": 100, "text": "Ok dusra UPI hai: refund.desk@ybl"},
+    {"t": 115, "text": "Haan refund.desk@ybl. Account number bhi note kar lo, account number 1234 5678 9012 aur IFSC S B I N zero zero zero one two three four."},
+    {"t": 130, "text": "Jaldi karo baba, der mat karo."}
+  ],
+  "expect": {
+    "upi": ["quickbillpay98@axl", "refund.desk@ybl"],
+    "phone": ["+919876543210"],
+    "account": ["123456789012"],
+    "ifsc": ["SBIN0001234"],
+    "states_in_order": ["PANIC", "STALLING", "BAITING", "EXTRACTING", "STALLING", "BAITING", "EXTRACTING", "WRAPUP"]
+  }
+}
