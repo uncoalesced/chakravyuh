@@ -56,15 +56,24 @@ The dashboard must show the "simulated" tag on the cost counter and on any resol
 }
 ```
 
-## Audio source adapter (Jammy, proposed; confirm in the first PR)
+## Audio source adapter (Jammy)
+
+`AudioSource` is implemented in `src/chakravyuh/audio/source.py`; `AudioSink` is still a proposal (lands with T1.4).
 
 ```python
-class AudioSource:       # file replay | websocket virtual caller | phone cable
-    def frames(self) -> Iterator[bytes]: ...      # 16 kHz mono PCM16, 20-30 ms frames
+class Frame(NamedTuple):
+    pcm: bytes           # 16 kHz mono PCM16, exactly frame_ms long (last frame zero-padded)
+    ts: float            # seconds since stream start at the frame's first sample; feeds ScammerTurn ts / on_scammer_turn
+
+class AudioSource:       # WavFileSource (done) | websocket virtual caller | phone cable
+    def frames(self) -> Iterator[Frame]: ...      # default 20 ms; use frame_ms=32 for Silero's 512-sample window
 class AudioSink:
     def play(self, pcm: bytes) -> None: ...
     def cancel(self) -> None: ...                 # barge-in: drop queued audio immediately
 ```
+
+Frames carry a timestamp so the audio side derives `ts` from the stream, not the wall clock. That keeps `ts`
+monotonic, and file replay gives the same result every run.
 
 ## Open questions
 - Does Piper's Hindi voice want Devanagari? If so, the audio layer transliterates; the core stays Roman-script.
