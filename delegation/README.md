@@ -44,8 +44,8 @@ pip install faster-whisper silero-vad piper-tts
 ## 3. Jammy's Immediate Roadmap
 
 ### Phase 0 Exit Check (Current Focus)
-- [ ] Set up local repo access and run `pytest` (assert 46 passed).
-- [ ] Build **audio-source adapter with file replay** (feed WAV files into the pipeline as if they were live mic input).
+- [x] Set up local repo access and run `pytest` (assert 46 passed).
+- [x] Build **audio-source adapter with file replay** (feed WAV files into the pipeline as if they were live mic input).
 - [ ] Run **STT benchmark** on Hinglish audio clips to measure character/word error rate and latency.
 
 ### Phase 1: Audio Pipeline & Live Queue

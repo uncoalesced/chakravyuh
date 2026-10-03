@@ -5,10 +5,10 @@ Milestones anchored to Hackathon submission: **23 Oct 2026, 5:00 pm IST**.
 ---
 
 ## Phase 0: Foundations & Local Benchmark (Due Oct 4)
-- [ ] **T0.1 Environment Setup**:
+- [x] **T0.1 Environment Setup**:
   - Clone repo, create virtualenv, run `pip install -e .[dev]`.
   - Acceptance: `pytest` exits 0 with 46 tests passing.
-- [ ] **T0.2 Audio Source Adapter (File Replay)**:
+- [x] **T0.2 Audio Source Adapter (File Replay)**:
   - Implement an audio source interface that reads a 16kHz mono `.wav` file in simulated real-time chunks (e.g. 20ms chunks) to emulate incoming microphone/telephony audio.
   - Acceptance: Unit test asserting audio chunks are yielded with accurate timestamps.
 - [ ] **T0.3 STT Benchmark on Hinglish**:
