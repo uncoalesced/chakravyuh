@@ -1,0 +1,10 @@
+{
+  "_note": "Each clip is someone reading one synthetic corpus line aloud. The reference text comes from the corpus, so it is never duplicated here. Audio files are local only (.gitignore blocks *.wav); record into bench/clips/. Any format ffmpeg reads works (wav, m4a, ogg).",
+  "clips": [
+    {"file": "clips/01_threat.wav",   "corpus": "electricity_disconnect", "turn": 0},
+    {"file": "clips/02_urgency.wav",  "corpus": "electricity_disconnect", "turn": 1},
+    {"file": "clips/03_upi.wav",      "corpus": "electricity_disconnect", "turn": 3},
+    {"file": "clips/04_phone.wav",    "corpus": "electricity_disconnect", "turn": 5},
+    {"file": "clips/05_bank.wav",     "corpus": "electricity_disconnect", "turn": 8}
+  ]
+}

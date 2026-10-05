@@ -1,6 +1,6 @@
 # Engineered by uncoalesced
 """Lint for docs/GUARDRAILS.md. Narrative rules are enforced by a test, not by good intentions."""
-import pathlib, re
+import pathlib, re, subprocess
 
 ROOT = pathlib.Path(__file__).parent.parent
 PROSE = [ROOT / "README.md", *(ROOT / "docs").glob("*.md"), *(ROOT / "src").rglob("*.py"), *(ROOT / "corpus").glob("*")]
@@ -31,5 +31,13 @@ def test_money_statistics_carry_a_source_on_the_same_line():
            if MONEY_STAT.search(ln) and "Source:" not in ln]
     assert not bad, bad
 
+def committable():
+    """Tracked plus untracked-but-not-ignored files, so local clips under ignored paths (bench/clips/) are allowed."""
+    try:
+        out = subprocess.run(["git", "ls-files", "-co", "--exclude-standard"], cwd=ROOT, capture_output=True, text=True, check=True)
+        return [ROOT / ln for ln in out.stdout.splitlines()]
+    except (OSError, subprocess.CalledProcessError):     # no git (e.g. a source tarball): fall back to every file
+        return [p for p in ROOT.rglob("*") if ".git" not in p.parts]
+
 def test_no_audio_or_models_committed():
-    assert not [p for p in ROOT.rglob("*") if ".git" not in p.parts and p.suffix in {".wav", ".mp3", ".gguf"}]
+    assert not [p for p in committable() if p.suffix in {".wav", ".mp3", ".gguf"}]
