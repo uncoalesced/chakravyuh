@@ -49,8 +49,8 @@ pip install faster-whisper silero-vad piper-tts
 - [x] Run **STT benchmark** on Hinglish audio clips to measure character/word error rate and latency.
 
 ### Phase 1: Audio Pipeline & Live Queue
-- [ ] **Silero VAD Endpointing**: Clean speech detection to detect when the caller stops speaking.
-- [ ] **Streaming STT with faster-whisper**: Generate transcripts with low initial latency.
+- [x] **Silero VAD Endpointing**: Clean speech detection to detect when the caller stops speaking.
+- [x] **Streaming STT with faster-whisper**: Generate transcripts with low initial latency.
 - [ ] **Piper TTS Integration**: Synthesize persona audio locally (default Hindi/English voice).
 - [ ] **Playback Queue & Barge-In**: Cancel persona audio immediately if the scammer interrupts.
 

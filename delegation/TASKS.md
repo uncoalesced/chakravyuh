@@ -18,10 +18,10 @@ Milestones anchored to Hackathon submission: **23 Oct 2026, 5:00 pm IST**.
 ---
 
 ## Phase 1: Audio Pipeline & Live Queue (Due Oct 9)
-- [ ] **T1.1 Silero VAD Integration**:
+- [x] **T1.1 Silero VAD Integration**:
   - Integrate Silero VAD to detect speech start, speech end, and silence thresholds (endpointing).
   - Acceptance: VAD reliably triggers on speech pause > 600ms without chopping mid-sentence.
-- [ ] **T1.2 Streaming STT Pipeline**:
+- [x] **T1.2 Streaming STT Pipeline**:
   - Hook VAD-segmented audio directly into faster-whisper.
   - Acceptance: Produces clean `ScammerTurn(text, timestamp)` emitted into the FSM.
 - [ ] **T1.3 Piper TTS Worker**:
