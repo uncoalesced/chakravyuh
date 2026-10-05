@@ -46,7 +46,7 @@ pip install faster-whisper silero-vad piper-tts
 ### Phase 0 Exit Check (Current Focus)
 - [x] Set up local repo access and run `pytest` (assert 46 passed).
 - [x] Build **audio-source adapter with file replay** (feed WAV files into the pipeline as if they were live mic input).
-- [ ] Run **STT benchmark** on Hinglish audio clips to measure character/word error rate and latency.
+- [x] Run **STT benchmark** on Hinglish audio clips to measure character/word error rate and latency.
 
 ### Phase 1: Audio Pipeline & Live Queue
 - [ ] **Silero VAD Endpointing**: Clean speech detection to detect when the caller stops speaking.
