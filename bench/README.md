@@ -27,3 +27,9 @@ python bench/stt_bench.py --models small,distil-large-v3 --device cuda --compute
 ```
 Each run writes the full log (every reference, transcript and timing) to `bench/results/stt_<timestamp>.json`.
 Numbers quoted anywhere public come from a logged run on the demo machine, with the label saying what was measured.
+
+## Models (local, gitignored under `models/`)
+- Silero VAD: `pip install silero-vad --no-deps` (ships the ONNX file; torch is not needed), or put
+  `silero_vad.onnx` in `models/`.
+- Piper Hindi voice (default `hi_IN-rohan-medium`): download `hi_IN-rohan-medium.onnx` and `.onnx.json` from
+  `huggingface.co/rhasspy/piper-voices` (path `hi/hi_IN/rohan/medium/`) into `models/piper/`.
