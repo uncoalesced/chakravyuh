@@ -18,16 +18,16 @@ Milestones anchored to Hackathon submission: **23 Oct 2026, 5:00 pm IST**.
 ---
 
 ## Phase 1: Audio Pipeline & Live Queue (Due Oct 9)
-- [ ] **T1.1 Silero VAD Integration**:
+- [x] **T1.1 Silero VAD Integration**:
   - Integrate Silero VAD to detect speech start, speech end, and silence thresholds (endpointing).
   - Acceptance: VAD reliably triggers on speech pause > 600ms without chopping mid-sentence.
-- [ ] **T1.2 Streaming STT Pipeline**:
+- [x] **T1.2 Streaming STT Pipeline**:
   - Hook VAD-segmented audio directly into faster-whisper.
   - Acceptance: Produces clean `ScammerTurn(text, timestamp)` emitted into the FSM.
-- [ ] **T1.3 Piper TTS Worker**:
+- [x] **T1.3 Piper TTS Worker**:
   - Integrate local Piper TTS with an elderly voice model (Hindi / Indian English).
   - Acceptance: Synthesizes `Reply(text)` into 16kHz PCM audio stream in < 300ms.
-- [ ] **T1.4 Playback Queue & Barge-In**:
+- [x] **T1.4 Playback Queue & Barge-In**:
   - Build audio playback queue that halts playback immediately if VAD detects scammer speech while persona audio is playing.
   - Acceptance: Test simulating scammer interrupt cancels current playback within 100ms.
 

@@ -58,7 +58,7 @@ The dashboard must show the "simulated" tag on the cost counter and on any resol
 
 ## Audio source adapter (Jammy)
 
-`AudioSource` is implemented in `src/chakravyuh/audio/source.py`; `AudioSink` is still a proposal (lands with T1.4).
+`AudioSource` is `src/chakravyuh/audio/source.py`; `AudioSink` is `Player` in `src/chakravyuh/audio/playback.py`.
 
 ```python
 class Frame(NamedTuple):
@@ -76,6 +76,7 @@ Frames carry a timestamp so the audio side derives `ts` from the stream, not the
 monotonic, and file replay gives the same result every run.
 
 ## Open questions
-- Does Piper's Hindi voice want Devanagari? If so, the audio layer transliterates; the core stays Roman-script.
+- ~~Does Piper's Hindi voice want Devanagari?~~ Yes: Roman input is read with English phonemes. The audio layer
+  transliterates (`audio/translit.py`); the core stays Roman-script. Unlisted English words may be mispronounced.
 - Where do pre-cached fillers live and who picks one (proposal: audio layer, per language)?
 - Kannada: add `"kn"` to `LINES` and the language map once an STT/TTS pair is chosen.
