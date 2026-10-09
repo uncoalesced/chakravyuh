@@ -23,7 +23,8 @@ def test_schema_and_simulated_tags():
 def test_no_transcript_by_default_and_opt_in_works():
     f = run("parcel_clearance", "en")
     assert "transcript" not in build_report(f, simulated=True)
-    assert len(build_report(f, simulated=True, include_transcript=True)["transcript"]) == 12
+    assert len(build_report(f, simulated=True, include_transcript=True)["transcript"]) == len(f.history)
+
 
 def test_cost_math():
     f = PersonaFSM(); f.on_scammer_turn("a", 0); f.on_scammer_turn("b", 120)
