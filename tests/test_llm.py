@@ -33,3 +33,56 @@ def test_request_shape_and_end_to_end_with_fsm():
 def test_unreachable_ollama_falls_back_to_script():
     r = PersonaFSM(llm=ollama_llm(host="http://127.0.0.1:9", timeout=0.5)).on_scammer_turn("pay now", 0)
     assert r.text
+
+
+def test_split_sentences():
+    from chakravyuh.llm import split_sentences
+    tokens = ["Arre ", "baap re! ", "Mera chashma ", "kahan hai? ", "Ek minute ", "rukiye..."]
+    assert list(split_sentences(tokens)) == [
+        "Arre baap re!",
+        "Mera chashma kahan hai?",
+        "Ek minute rukiye..."
+    ]
+
+    # Trailing text without sentence terminator
+    assert list(split_sentences(["No terminator ", "here"])) == ["No terminator here"]
+
+    # Hindi purna viram and newline
+    assert list(split_sentences(["Main sun raha hoon। ", "Bataiye\n"])) == [
+        "Main sun raha hoon।",
+        "Bataiye"
+    ]
+
+
+def test_ollama_stream_sentences():
+    from chakravyuh.llm import ollama_stream_sentences, ollama_llm
+    chunks = [
+        {"message": {"content": "One moment "}, "done": False},
+        {"message": {"content": "sir. "}, "done": False},
+        {"message": {"content": "I am looking "}, "done": False},
+        {"message": {"content": "for pen."}, "done": True},
+    ]
+    ndjson = "\n".join(json.dumps(c) for c in chunks).encode("utf-8")
+
+    class StreamH(BaseHTTPRequestHandler):
+        def do_POST(self):
+            self.send_response(200)
+            self.send_header("Content-Type", "application/x-ndjson")
+            self.send_header("Content-Length", str(len(ndjson)))
+            self.end_headers()
+            self.wfile.write(ndjson)
+        def log_message(self, *a): pass
+
+    srv = HTTPServer(("127.0.0.1", 0), StreamH)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    try:
+        streamer = ollama_stream_sentences(host=f"http://127.0.0.1:{srv.server_port}")
+        sents = list(streamer("System prompt", [{"role": "user", "content": "hello"}]))
+        assert sents == ["One moment sir.", "I am looking for pen."]
+
+        # Via ollama_llm(stream=True)
+        llm_stream = ollama_llm(host=f"http://127.0.0.1:{srv.server_port}", stream=True)
+        assert list(llm_stream("System", [])) == ["One moment sir.", "I am looking for pen."]
+    finally:
+        srv.shutdown()
+
