@@ -4,30 +4,32 @@ Pure functions, stdlib only. Format validation only: we never claim an identifie
 import re
 from .contracts import Intel
 
-_W = {"zero": 0, "shunya": 0, "sifar": 0, "one": 1, "ek": 1, "two": 2, "do": 2, "three": 3, "teen": 3,
+_W = {"zero": 0, "shunya": 0, "sunya": 0, "sifar": 0, "one": 1, "ek": 1, "two": 2, "do": 2, "three": 3, "teen": 3,
       "four": 4, "char": 4, "chaar": 4, "five": 5, "paanch": 5, "panch": 5, "six": 6, "chhe": 6,
-      "chheh": 6, "chhah": 6, "seven": 7, "saat": 7, "eight": 8, "aath": 8, "nine": 9, "nau": 9}
-_MULT = {"double": 2, "triple": 3, "dabal": 2}
+      "chheh": 6, "chhah": 6, "che": 6, "cheh": 6, "seven": 7, "saat": 7, "eight": 8, "aath": 8, "nine": 9, "nau": 9,
+      "oh": 0}
+_MULT = {"double": 2, "triple": 3, "tripple": 3, "dabal": 2}
 _DEVA = str.maketrans("०१२३४५६७८९", "0123456789")
-_E = rf"(?:(?:(?:double|triple|dabal)[\s,\-]+)?(?:{'|'.join(_W)})\b|\d+)"
+_E = rf"(?:(?:(?:double|triple|tripple|dabal)[\s,\-]+)?(?:{'|'.join(_W)})\b|\d+)"
 _RUN = re.compile(rf"\b{_E}(?:[\s,.\-]+{_E})*", re.I)
 
 # Partial lists on purpose: unknown values are still captured, just flagged valid=False.
 _PSP = set("""okaxis okhdfcbank okicici oksbi ybl ibl axl paytm apl upi fbl sbi hdfcbank icici axisbank pnb
 ptyes ptsbi pthdfc ptaxis airtel freecharge jio postbank kotak yesbank idfcbank indus aubank unionbank
-barodampay cnrb boi cbin ikwik""".split())
+barodampay cnrb boi cbin ikwik okbizaxis federal rbl payzapp timecosmos waaxis wahdfc waicici wasbi
+jupiteraxis slice slicepay navi bob idbi""".split())
 _BANKS = set("""SBIN HDFC ICIC UTIB PUNB KKBK BARB CNRB IDIB YESB IDFB INDB UBIN MAHB CBIN FDRL AUBL BKID IOBA
-SCBL KARB SIBL RATN TMBL DLXB CIUB JAKA""".split())
+SCBL KARB SIBL RATN TMBL DLXB CIUB JAKA IBKL PSIB UCBA BDBL ESFB KVBL CSBK DCBL AIRP PYTM IPOS UTKS JSFB""".split())
 
-_UPI = re.compile(r"(?<![\w.\-@])([A-Za-z0-9][\w.\-]{2,48})(?:\s*(@)\s*|\s+at\s+the\s+rate(?:\s+of)?\s+|\s+at\s+)"
+_UPI = re.compile(r"(?<![\w.\-@])([A-Za-z0-9][\w.\-]{2,48})(?:\s*(@)\s*|\s+at\s+(?:the\s+)?rate(?:\s+of)?\s+|\s+at\s+)"
                   r"([A-Za-z][A-Za-z0-9]{1,30})(?![\w]|\.[A-Za-z])", re.I)
 _STOP = {"id", "upi", "ids", "the", "and"}
 _SEP = r"[\s,.\-]*"
-_IFSC = re.compile(rf"(?<![A-Za-z0-9])((?:[A-Za-z]{_SEP}){{4}})0{_SEP}((?:[A-Za-z0-9]{_SEP}){{6}})(?![A-Za-z0-9])")
+_IFSC = re.compile(rf"(?<![A-Za-z0-9])((?:[A-Za-z]{_SEP}){{4}})[0Oo]{_SEP}((?:[A-Za-z0-9]{_SEP}){{6}})(?![A-Za-z0-9])")
 _NUM = re.compile(r"\+?\d[\d\s\-]{6,}\d")
 _NOT_ACCOUNT = re.compile(r"utr|ref|transaction|otp|pin", re.I)
-_URL = re.compile(r"https?://[^\s<>\"']+|\b(?:bit\.ly|tinyurl\.com|cutt\.ly|rb\.gy|is\.gd)/[^\s<>\"']+", re.I)
-_APK = re.compile(r"(?<![/\w\-.])[\w\-]+\.apk\b", re.I)
+_URL = re.compile(r"https?://[^\s<>\"']+|\b(?:bit\.ly|tinyurl\.com|cutt\.ly|rb\.gy|is\.gd|t\.co|ngrok-free\.app|page\.link)/[^\s<>\"']+|\b[A-Za-z0-9\-]+\.(?:com|org|net|in|co|io|example|me|app)/[^\s<>\"']+", re.I)
+_APK = re.compile(r"(?<![/\w\-.])[\w\-]+\.apk(?:\?[^\s<>\"']*)?\b", re.I)
 
 
 def speech_digits(text: str) -> str:
@@ -45,6 +47,13 @@ def speech_digits(text: str) -> str:
             else: d += w
         return d if len(d) >= 4 else s
     return _RUN.sub(fix, text.translate(_DEVA))
+
+
+def normalize_spoken(text: str) -> str:
+    """Normalize spoken punctuation (dot -> ., slash -> /) around symbols and identifiers."""
+    t = re.sub(r"(?<=[A-Za-z0-9\-])\s+dot\s+(?=[A-Za-z0-9\-])", ".", text, flags=re.I)
+    t = re.sub(r"(?<=[A-Za-z0-9\-])\s+slash\s+(?=[A-Za-z0-9\-])", "/", t, flags=re.I)
+    return t
 
 
 def _upi(t, add):
@@ -77,7 +86,7 @@ def _numbers(t, add):
 def _urls(t, add):
     for m in _URL.finditer(t):
         v = m.group().rstrip(".,;:)!?")
-        add("apk" if v.lower().endswith(".apk") else "url", v, True)
+        add("apk" if ".apk" in v.lower() else "url", v, True)
     for m in _APK.finditer(t):
         add("apk", m.group(), True)
 
@@ -86,7 +95,8 @@ def extract(text: str, ts: float = 0.0) -> list:
     out = {}
     def add(kind, value, valid, note=""):
         out.setdefault((kind, value), Intel(kind, value, valid, note, ts))
-    for t in (text, speech_digits(text)):
+    variations = (text, speech_digits(text), normalize_spoken(text), normalize_spoken(speech_digits(text)))
+    for t in variations:
         _upi(t, add); _ifsc(t, add); _numbers(t, add); _urls(t, add)
     return list(out.values())
 
