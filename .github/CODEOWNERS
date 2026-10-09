@@ -1,19 +1,20 @@
 # Every PR needs a review from the other person. Owners below are the primary authors.
-# TODO(Joel): replace JAMMY_GITHUB_HANDLE with Jammy's GitHub handle.
 
-# Joel (@uncoalesced): persona engine, extraction, reporting, corpus A
+# Joel (@uncoalesced): persona engine, extraction, reporting, pipeline, corpus A
 /src/chakravyuh/extract.py   @uncoalesced
 /src/chakravyuh/fsm.py       @uncoalesced
 /src/chakravyuh/llm.py       @uncoalesced
 /src/chakravyuh/report.py    @uncoalesced
+/src/chakravyuh/pipeline.py  @uncoalesced
 /corpus/                     @uncoalesced
 
-# Jammy: audio pipeline, dashboard, latency harness, corpus B
-/src/chakravyuh/audio/       @JAMMY_GITHUB_HANDLE
-/dashboard/                  @JAMMY_GITHUB_HANDLE
-/bench/                      @JAMMY_GITHUB_HANDLE
+# Jammy (@jammy-007): audio pipeline, dashboard, latency harness, corpus B
+/src/chakravyuh/audio/       @jammy-007
+/dashboard/                  @jammy-007
+/bench/                      @jammy-007
 
 # Shared: both owners
-/src/chakravyuh/contracts.py @uncoalesced @JAMMY_GITHUB_HANDLE
-/docs/CONTRACTS.md           @uncoalesced @JAMMY_GITHUB_HANDLE
-/docs/GUARDRAILS.md          @uncoalesced @JAMMY_GITHUB_HANDLE
+/src/chakravyuh/contracts.py @uncoalesced @jammy-007
+/docs/CONTRACTS.md           @uncoalesced @jammy-007
+/docs/GUARDRAILS.md          @uncoalesced @jammy-007
+
