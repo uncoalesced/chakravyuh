@@ -48,3 +48,11 @@ python dashboard/server.py --caller ws://127.0.0.1:8766 --whisper small       # 
 For each turn it logs the **turn gap**: from the last frame of caller speech to the first persona audio arriving
 back on the line, which is what a caller actually hears. Per-turn rows and p50/p90 go to
 `bench/results/call_<corpus>_<timestamp>.json`.
+
+## Latency harness (`latency.py`, task T3.2)
+
+Runs one autonomous call in a single process and splits each turn gap into endpoint wait, STT, core and TTS to
+first audio. Prints a Markdown table for `docs/BENCHMARKS.md` and logs to `bench/results/latency_*.json`.
+```
+python bench/latency.py --corpus kyc_block --whisper small --device cuda --llm --label "demo GPU"
+```
