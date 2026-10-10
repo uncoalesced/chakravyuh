@@ -4,6 +4,7 @@
 
     python dashboard/server.py --corpus electricity_disconnect --speed 2 --loop     # text replay, no models
     python dashboard/server.py --wav bench/clips/0*.wav                             # full audio pipeline
+    python dashboard/server.py --caller ws://127.0.0.1:8766                         # answer bench/virtual_caller.py
 
 WebSocket on ws://127.0.0.1:8765; the built page (dashboard/web/dist) on http://127.0.0.1:8000.
 Binds to localhost only: the feed carries captured identifiers (docs/GUARDRAILS.md section 6)."""
@@ -118,6 +119,27 @@ def run_wavs(paths, publish, lang="hi", whisper="small"):
         player.close()
 
 
+def run_caller(url, publish, lang="hi", whisper="base"):
+    """Answer a call from bench/virtual_caller.py (or any WebSocket line) with the full audio pipeline.
+    Persona audio goes back down the line, so the caller hears it and measures the turn gap."""
+    from chakravyuh.audio.playback import Player
+    from chakravyuh.audio.stt import WhisperSTT
+    from chakravyuh.audio.tts import PiperTTS
+    from chakravyuh.audio.vad import Endpointer, SileroVAD
+    from chakravyuh.audio.ws import WebSocketCall
+    from chakravyuh.pipeline import run_pipeline
+
+    stt, tts = WhisperSTT(whisper), PiperTTS(lang)             # load models before answering
+    call = WebSocketCall(url)
+    player = Player(call.write)
+    try:
+        run_pipeline(call, Endpointer(SileroVAD()), stt, PersonaFSM(lang=lang), tts, player,
+                     simulated=True, on_event=publish)
+    finally:
+        player.close()
+        call.close()
+
+
 async def serve(hub, port):
     from websockets.asyncio.server import serve as ws_serve
     loop = asyncio.get_running_loop()
@@ -159,9 +181,11 @@ def main(argv=None):
     src = ap.add_mutually_exclusive_group(required=True)
     src.add_argument("--corpus", help="corpus script id, e.g. digital_arrest")
     src.add_argument("--wav", nargs="+", help="16 kHz mono wav clips, played as one call")
+    src.add_argument("--caller", help="WebSocket line to answer, e.g. ws://127.0.0.1:8766 (bench/virtual_caller.py)")
     ap.add_argument("--speed", type=float, default=1.0, help="corpus replay speed-up")
     ap.add_argument("--loop", action="store_true", help="restart the call when it ends (demo kiosk)")
-    ap.add_argument("--lang", default="hi", help="persona language for --wav")
+    ap.add_argument("--lang", default="hi", help="persona language for --wav / --caller")
+    ap.add_argument("--whisper", default="base", help="faster-whisper model for --wav / --caller")
     ap.add_argument("--ws-port", type=int, default=8765)
     ap.add_argument("--http-port", type=int, default=8000)
     a = ap.parse_args(argv)
@@ -174,8 +198,10 @@ def main(argv=None):
         while True:
             if a.corpus:
                 replay_corpus(a.corpus, hub.publish, a.speed)
+            elif a.caller:
+                run_caller(a.caller, hub.publish, a.lang, a.whisper)
             else:
-                run_wavs(a.wav, hub.publish, a.lang)
+                run_wavs(a.wav, hub.publish, a.lang, a.whisper)
             if not a.loop:
                 return
             time.sleep(8)
