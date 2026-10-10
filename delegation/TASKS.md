@@ -51,9 +51,9 @@ Milestones anchored to Hackathon submission: **23 Oct 2026, 5:00 pm IST**.
 ---
 
 ## Phase 3: Telephony Bridge & Latency Harness (Due Oct 18)
-- [ ] **T3.1 Virtual Scammer WebSocket Server**:
+- [x] **T3.1 Virtual Scammer WebSocket Server**:
   - Build automated scammer simulation audio server that speaks corpus scripts to test end-to-end autonomous loops.
   - Acceptance: Autonomous call completes with 0 human intervention and full intel report generated.
-- [ ] **T3.2 Latency Harness**:
+- [x] **T3.2 Latency Harness**:
   - Measure total turn gap (Scammer stops talking &rarr; Persona begins speaking).
   - Acceptance: Measured p50 latency recorded and logged in `docs/BENCHMARKS.md`.

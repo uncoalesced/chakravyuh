@@ -10,7 +10,7 @@ from chakravyuh.audio.source import SAMPLE_RATE
 from chakravyuh.audio.translit import to_devanagari
 
 VOICES = pathlib.Path(__file__).parents[3] / "models" / "piper"
-DEFAULT_VOICE = {"hi": "hi_IN-rohan-medium"}
+DEFAULT_VOICE = {"hi": "hi_IN-rohan-medium", "en": "en_GB-alan-medium"}
 
 
 class PiperTTS:
