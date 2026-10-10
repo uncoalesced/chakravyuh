@@ -55,7 +55,7 @@ pip install faster-whisper silero-vad piper-tts
 - [x] **Playback Queue & Barge-In**: Cancel persona audio immediately if the scammer interrupts.
 
 ### Phase 2: Dashboard & Corpus B
-- [ ] **Dashboard Frontend**: React + Vite interface with live WebSocket feed displaying turns, extracted intel, and caller time wasted counter (with visible "simulated" badge).
+- [x] **Dashboard Frontend**: React + Vite interface with live WebSocket feed displaying turns, extracted intel, and caller time wasted counter (with visible "simulated" badge).
 - [x] **Corpus B**: Author synthetic scam scripts for *digital arrest* and *fake KYC/bank update* scenarios.
 
 ---

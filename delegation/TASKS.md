@@ -34,7 +34,7 @@ Milestones anchored to Hackathon submission: **23 Oct 2026, 5:00 pm IST**.
 ---
 
 ## Phase 2: Dashboard Surface & Corpus B (Due Oct 14)
-- [ ] **T2.1 Dashboard Frontend (React + Vite)**:
+- [x] **T2.1 Dashboard Frontend (React + Vite)**:
   - Create a modern, clean live monitoring dashboard (`uncoalesced` palette, Apple-style tokens).
   - Live components:
     - Call Status & State (`PANIC`, `STALLING`, `BAITING`, `EXTRACTING`, `WRAPUP`).
