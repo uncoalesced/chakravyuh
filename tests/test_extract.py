@@ -74,3 +74,25 @@ def test_extractor_dedupes_and_joins_split_utterances():
     assert [i.value for i in e.feed("@axl")] == ["quickbillpay98@axl"]
     assert e.feed("haan quickbillpay98@axl") == []
     assert len(e.all) == 1
+
+
+def test_spoken_dot_and_new_psp_in_upi():
+    u = got("bhejiye refund dot desk at ybl ya fir biz dot desk at waaxis", "upi")
+    assert "refund.desk@ybl" in u and u["refund.desk@ybl"].valid
+    assert "biz.desk@waaxis" in u and u["biz.desk@waaxis"].valid
+
+
+def test_ifsc_asr_letter_o_and_new_banks():
+    i = got("IFSC is SBINO001234 and IBKL zero zero zero one two three four", "ifsc")
+    assert "SBIN0001234" in i and i["SBIN0001234"].valid
+    assert "IBKL0001234" in i and i["IBKL0001234"].valid
+
+
+def test_spoken_punctuation_urls_and_apk():
+    kinds = {(i.kind, i.value) for i in extract("download from portal dot example slash update dot apk")}
+    assert ("apk", "portal.example/update.apk") in kinds
+
+
+def test_speech_digits_oh_tripple_sunya():
+    assert "+919807012223" in got("nine eight oh seven sunya one tripple two three", "phone")
+

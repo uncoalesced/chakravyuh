@@ -8,12 +8,19 @@
     {"t": 28, "text": "Transfer the fee now. Note the account details."},
     {"t": 42, "text": "Account number one zero two zero three zero four zero five zero six zero, name Blue Orchid Traders, IFSC H D F C zero zero zero one two three four."},
     {"t": 58, "text": "Also download the tracking app from http://parcel-clearance.example/clear.apk to confirm."},
-    {"t": 72, "text": "Hello? Are you there? Hurry up."}
+    {"t": 72, "text": "Hello? Are you there? Hurry up."},
+    {"t": 86, "text": "The clearance payment failed. Pay the amount again immediately."},
+    {"t": 100, "text": "Use our clearance desk UPI ID parcel.clear@okhdfcbank right away."},
+    {"t": 115, "text": "Yes parcel.clear@okhdfcbank, or call our desk on nine eight seven six five four three two one zero."},
+    {"t": 130, "text": "Hello? Are you paying now?"}
   ],
   "expect": {
     "account": ["102030405060"],
     "ifsc": ["HDFC0001234"],
     "apk": ["http://parcel-clearance.example/clear.apk"],
-    "states_in_order": ["PANIC", "STALLING", "BAITING", "EXTRACTING", "STALLING"]
+    "upi": ["parcel.clear@okhdfcbank"],
+    "phone": ["+919876543210"],
+    "states_in_order": ["PANIC", "STALLING", "BAITING", "EXTRACTING", "STALLING", "BAITING", "EXTRACTING", "WRAPUP"]
   }
 }
+
