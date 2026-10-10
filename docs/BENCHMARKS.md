@@ -23,6 +23,20 @@ scripted persona (no LLM) · 11/11 turns answered · log `latency_kyc_block_2026
 
 One outlier turn (6.9 s) was whisper looping on a spoken URL; it is in the log, not hidden.
 
+#### Same call with fillers and the TTS cache (10 Oct 2026)
+Same command and models, plus `audio/fillers.py`: a pre-synthesised filler ("Yes, yes...") starts at each endpoint,
+and the persona's scripted lines are synthesised at startup. 11/11 answered · log `latency_kyc_block_20261010_211325.json`
+
+| | Before | After |
+|---|---|---|
+| **Turn gap, caller hears first audio** | 1484 / 1781 ms | **656 / 671 ms** (p50 / p90) |
+| Reply ready (caller stops to real reply queued) | ~1450 ms (stage sum) | 1188 / 1297 ms |
+| TTS to first audio | 241 / 335 ms | 0 / 0 ms (cached) |
+| Speech to text | 586 / 844 ms | 554 / 656 ms |
+
+The caller now hears the persona about 50 ms after the endpoint wait ends. The real reply follows the filler; it is about
+300 ms sooner than before because cached lines skip synthesis. LLM-worded lines are not cached and still pay TTS.
+
 Hindi run of the same setup (`digital_arrest`, whisper base, 11/11 answered): turn gap p50 2.9 s, p90 5.3 s.
 Hindi turns are longer and whisper spends longer on them.
 
@@ -35,7 +49,8 @@ Not measured yet. Run on the demo machine with the LLM enabled:
   to ~400 ms saves 200 ms on every turn but splits more dictated IDs across turns (see `bench/README.md`).
 - **STT is the main variable cost**, and on CPU it grows with utterance length. A GPU, or decoding while the caller is
   still talking, is the fix.
-- **TTS is close to budget** and already sentence-streamed.
+- **TTS is close to budget** for live text; scripted lines are now cached (0 ms).
+- **Fillers hide the rest**: what the caller waits for is now the endpoint wait plus ~50 ms.
 - With the LLM enabled, the core stage will add the first-sentence time from Ollama; measure it on the demo GPU.
 
 ## Recognition quality in these runs

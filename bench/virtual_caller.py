@@ -112,7 +112,7 @@ async def run_call(ws, script, tts, *, reply_timeout=20.0, quiet=0.9, gap=0.4, l
             t_end = await line.say(pcm)
             first, last = await line.await_reply(reply_timeout, quiet)
             rec = {"turn": i, "text": turn["text"], "speech_s": round(len(pcm) / 32000, 2),
-                   "spoke_at": round(t_start, 3), "gap_s": round(first - t_end, 3) if first else None,
+                   "spoke_at": round(t_start, 3), "ended_at": round(t_end, 3), "gap_s": round(first - t_end, 3) if first else None,
                    "reply_s": round(last - first, 2) if first else None}
             turns.append(rec)
             log(f"turn {i:02d}  gap={rec['gap_s'] if rec['gap_s'] is not None else '  none'}s  | {turn['text'][:60]}")

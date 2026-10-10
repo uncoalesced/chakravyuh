@@ -95,6 +95,7 @@ def replay_corpus(name, publish, speed=1.0, sleep=time.sleep):
 def run_wavs(paths, publish, lang="hi", whisper="small"):
     """Full audio pipeline over recorded clips (played back to back). Persona audio goes to a paced null sink so
     barge-in timing is real; swap in sounddevice_output() to hear it."""
+    from chakravyuh.audio.fillers import CachedTTS, Fillers, persona_lines, with_filler
     from chakravyuh.audio.playback import Player, paced_null_output
     from chakravyuh.audio.source import WavFileSource
     from chakravyuh.audio.stt import WhisperSTT
@@ -111,10 +112,12 @@ def run_wavs(paths, publish, lang="hi", whisper="small"):
                     yield f._replace(ts=round(f.ts + offset, 6))
                 offset += src.duration
 
+    voice = PiperTTS(lang)
     player = Player(paced_null_output())
+    stt = with_filler(WhisperSTT(whisper), player, Fillers(voice, lang))
     try:
-        run_pipeline(Clips(), Endpointer(SileroVAD()), WhisperSTT(whisper), PersonaFSM(lang=lang),
-                     PiperTTS(lang), player, simulated=True, on_event=publish)
+        run_pipeline(Clips(), Endpointer(SileroVAD()), stt, PersonaFSM(lang=lang),
+                     CachedTTS(voice, persona_lines(lang)), player, simulated=True, on_event=publish)
     finally:
         player.close()
 
@@ -122,6 +125,7 @@ def run_wavs(paths, publish, lang="hi", whisper="small"):
 def run_caller(url, publish, lang="hi", whisper="base"):
     """Answer a call from bench/virtual_caller.py (or any WebSocket line) with the full audio pipeline.
     Persona audio goes back down the line, so the caller hears it and measures the turn gap."""
+    from chakravyuh.audio.fillers import CachedTTS, Fillers, persona_lines, with_filler
     from chakravyuh.audio.playback import Player
     from chakravyuh.audio.stt import WhisperSTT
     from chakravyuh.audio.tts import PiperTTS
@@ -129,9 +133,11 @@ def run_caller(url, publish, lang="hi", whisper="base"):
     from chakravyuh.audio.ws import WebSocketCall
     from chakravyuh.pipeline import run_pipeline
 
-    stt, tts = WhisperSTT(whisper), PiperTTS(lang)             # load models before answering
+    voice = PiperTTS(lang)                                       # load models and caches before answering
+    stt, tts, fillers = WhisperSTT(whisper), CachedTTS(voice, persona_lines(lang)), Fillers(voice, lang)
     call = WebSocketCall(url)
     player = Player(call.write)
+    stt = with_filler(stt, player, fillers)
     try:
         run_pipeline(call, Endpointer(SileroVAD()), stt, PersonaFSM(lang=lang), tts, player,
                      simulated=True, on_event=publish)
