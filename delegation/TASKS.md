@@ -42,7 +42,7 @@ Milestones anchored to Hackathon submission: **23 Oct 2026, 5:00 pm IST**.
     - Extracted Intel card (UPI VPAs, bank accounts, IFSC, phone numbers, APK URLs).
     - Scammer time wasted counter (with prominent **[SIMULATED]** badge).
   - Acceptance: Connects over WebSocket and renders incoming turns in real-time.
-- [ ] **T2.2 Corpus B Authoring**:
+- [x] **T2.2 Corpus B Authoring**:
   - Write synthetic test scripts for:
     1. *Digital Arrest / Fake Police scam* (`corpus/digital_arrest.json`).
     2. *Fake KYC / Bank account block scam* (`corpus/kyc_block.json`).
