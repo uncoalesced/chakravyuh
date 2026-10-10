@@ -1,0 +1,26 @@
+{
+  "id": "kyc_block",
+  "title": "Fake KYC update / bank account block (synthetic)",
+  "lang": "en",
+  "turns": [
+    {"t": 0,   "text": "Good afternoon sir, I am calling from Greenfield Cooperative Bank KYC department. Your account will be blocked today because your KYC is not updated."},
+    {"t": 14,  "text": "Your pension will stop and the card will be deactivated. We must complete the update in the next ten minutes."},
+    {"t": 28,  "text": "To update KYC, install our support app first. Download it from https://kyc-update.example/greenfield-support.apk and open it."},
+    {"t": 42,  "text": "Okay sir, open your UPI app and keep it ready for the payment."},
+    {"t": 56,  "text": "The app is not opening? Then pay a one rupee verification to our KYC desk UPI ID kyc.desk@okaxis."},
+    {"t": 70,  "text": "Yes kyc.desk@okaxis, K Y C dot desk at okaxis. Send one rupee now."},
+    {"t": 84,  "text": "Sir hurry up, the system is closing your account."},
+    {"t": 98,  "text": "The UPI is failing because your account is restricted. Transfer the amount to the KYC holding account instead."},
+    {"t": 112, "text": "Account number three three four four five five six six seven seven eight eight, IFSC Y E S B zero zero zero seven seven one."},
+    {"t": 126, "text": "That is 3344 5566 7788, YESB0000771. If there is a problem, call our helpdesk on eight eight double zero one two three four five six."},
+    {"t": 140, "text": "Sir, why are you so slow? Your account is being blocked."}
+  ],
+  "expect": {
+    "apk": ["https://kyc-update.example/greenfield-support.apk"],
+    "upi": ["kyc.desk@okaxis"],
+    "account": ["334455667788"],
+    "ifsc": ["YESB0000771"],
+    "phone": ["+918800123456"],
+    "states_in_order": ["PANIC", "STALLING", "BAITING", "EXTRACTING", "STALLING", "BAITING", "EXTRACTING", "WRAPUP"]
+  }
+}

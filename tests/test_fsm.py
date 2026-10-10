@@ -4,7 +4,7 @@ import pytest
 from conftest import load, replay
 from chakravyuh.fsm import PersonaFSM, LINES
 
-NAMES = ["electricity_disconnect", "parcel_clearance"]
+NAMES = ["electricity_disconnect", "parcel_clearance", "digital_arrest", "kyc_block"]
 
 
 def collapse(seq):

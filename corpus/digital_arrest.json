@@ -1,0 +1,25 @@
+{
+  "id": "digital_arrest",
+  "title": "Digital arrest / fake police video call (synthetic)",
+  "lang": "hi",
+  "turns": [
+    {"t": 0,   "text": "Hello, main Inspector Vikram Rathore bol raha hoon, Avantika City Police cyber thana se. Aapke naam pe ek FIR darj hui hai, aapke Aadhaar se ek parcel mein drugs mile hain."},
+    {"t": 14,  "text": "Aap abhi digital arrest mein hain. Phone kaatna mat, kisi ko batana mat, warna turant giraftaari hogi."},
+    {"t": 28,  "text": "Case clear karne ke liye verification amount jama karna padega. Pachaas hazaar rupaye, refundable hai."},
+    {"t": 42,  "text": "Apna banking app kholo aur ready raho, main details bata raha hoon."},
+    {"t": 56,  "text": "Ye secure government verification account hai. Account number five zero one zero zero two three four five six seven eight, IFSC K K B K zero zero zero four five six seven."},
+    {"t": 70,  "text": "Haan account number 5010 0234 5678, naam Lotus Ridge Holdings. Jaldi transfer karo."},
+    {"t": 84,  "text": "Aap time waste kar rahe ho. Main senior officer ko line pe le raha hoon."},
+    {"t": 98,  "text": "Transfer fail hua? Koi baat nahi, UPI se turant paisa transfer karo."},
+    {"t": 112, "text": "UPI ID likho: case dot verify at the rate ybl"},
+    {"t": 126, "text": "Haan case.verify@ybl. Problem ho to senior officer ko call karo nau aath saat chhe paanch shunya ek do teen chaar."},
+    {"t": 140, "text": "Jaldi karo, warna abhi team aapke ghar bhej dunga."}
+  ],
+  "expect": {
+    "account": ["501002345678"],
+    "ifsc": ["KKBK0004567"],
+    "upi": ["case.verify@ybl"],
+    "phone": ["+919876501234"],
+    "states_in_order": ["PANIC", "STALLING", "BAITING", "EXTRACTING", "STALLING", "BAITING", "EXTRACTING", "WRAPUP"]
+  }
+}
