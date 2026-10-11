@@ -33,3 +33,20 @@ def test_tap_passes_audio_through_unchanged():
     assert [f.pcm for f in src.frames()] == [pcm(7, 7)]
     write(pcm(3))
     assert sent == [pcm(3)] and mon.take(4) == pcm(10, 7)
+
+
+def test_start_and_stop_recording(tmp_path):
+    out = tmp_path / "rec.wav"
+    mon = SpeakerMonitor(start=False)
+    mon.start_recording(str(out))
+    mon.feed("caller", pcm(100, 200))
+    mon.feed("persona", pcm(50, 50))
+    chunk = mon.take(4)
+    saved = mon.stop_recording()
+    assert saved == str(out) and out.exists()
+    import wave
+    with wave.open(str(out), "rb") as wf:
+        assert wf.getnchannels() == 1
+        assert wf.getframerate() == 16000
+        assert wf.getnframes() == 2
+        assert wf.readframes(2) == chunk

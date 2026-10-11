@@ -20,16 +20,43 @@ def mix(a: bytes, b: bytes) -> bytes:
 
 
 class SpeakerMonitor:
-    def __init__(self, max_lag_s: float = 0.4, start: bool = True):
+    def __init__(self, max_lag_s: float = 0.4, start: bool = True, record_path: str = None):
         self._bufs = {"caller": bytearray(), "persona": bytearray()}
         self._cap = int(max_lag_s * SAMPLE_RATE) * SAMPLE_WIDTH
         self._lock = threading.Lock()
         self.stream = None
+        self._record_path = record_path
+        self._rec_buf = bytearray()
+        self._recording = bool(record_path)
         if start:
             import sounddevice as sd
             self.stream = sd.RawOutputStream(samplerate=SAMPLE_RATE, channels=1, dtype="int16",
                                              blocksize=SAMPLE_RATE // 50, callback=self._callback)
             self.stream.start()
+
+    def start_recording(self, path: str) -> None:
+        with self._lock:
+            self._record_path = path
+            self._rec_buf.clear()
+            self._recording = True
+
+    def stop_recording(self):
+        with self._lock:
+            self._recording = False
+            path = self._record_path
+            data = bytes(self._rec_buf)
+            self._rec_buf.clear()
+        if path and data:
+            import pathlib, wave
+            p = pathlib.Path(path)
+            p.parent.mkdir(parents=True, exist_ok=True)
+            with wave.open(str(p), "wb") as wf:
+                wf.setnchannels(1)
+                wf.setsampwidth(SAMPLE_WIDTH)
+                wf.setframerate(SAMPLE_RATE)
+                wf.writeframes(data)
+            return str(p)
+        return None
 
     def feed(self, side: str, pcm: bytes) -> None:
         with self._lock:
@@ -46,7 +73,10 @@ class SpeakerMonitor:
                 chunk = bytes(buf[:n])
                 del buf[:n]
                 parts.append(chunk.ljust(n, b"\0"))
-        return mix(*parts)
+            mixed = mix(*parts)
+            if self._recording:
+                self._rec_buf += mixed
+        return mixed
 
     def _callback(self, outdata, frames, time_info, status):
         outdata[:] = self.take(frames * SAMPLE_WIDTH)
@@ -68,6 +98,7 @@ class SpeakerMonitor:
         return Tapped(), tapped_write
 
     def close(self):
+        self.stop_recording()
         if self.stream:
             self.stream.stop()
             self.stream.close()

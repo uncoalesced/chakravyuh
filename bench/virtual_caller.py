@@ -33,7 +33,7 @@ def load_script(name):
 
 def piper_voice(lang):
     from chakravyuh.audio.tts import PiperTTS
-    tts = PiperTTS(lang, voice=CALLER_VOICE[lang], length_scale=1.0)
+    tts = PiperTTS(lang, voice=CALLER_VOICE[lang], length_scale=0.98, elderly=False)
     return lambda text: b"".join(tts.synthesize(text))
 
 

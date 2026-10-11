@@ -146,12 +146,12 @@ def start_virtual_caller(corpus, port):
 
 
 @functools.lru_cache(maxsize=None)
-def speaker_monitor():
+def speaker_monitor(speakers=True, record=None):
     from chakravyuh.audio.monitor import SpeakerMonitor
-    return SpeakerMonitor()
+    return SpeakerMonitor(start=speakers, record_path=record)
 
 
-def run_caller(url, publish, lang="hi", whisper="base", speakers=False):
+def run_caller(url, publish, lang="hi", whisper="base", speakers=False, record=None):
     """Answer a call from bench/virtual_caller.py (or any WebSocket line) with the full audio pipeline.
     Persona audio goes back down the line, so the caller hears it and measures the turn gap."""
     from chakravyuh.audio.fillers import with_filler
@@ -162,7 +162,13 @@ def run_caller(url, publish, lang="hi", whisper="base", speakers=False):
 
     stt, tts, fillers = agent_models(lang, whisper)
     call = WebSocketCall(url)
-    source, write = speaker_monitor().tap(call, call.write) if speakers else (call, call.write)
+    mon = speaker_monitor(speakers=speakers, record=record) if (speakers or record) else None
+    if mon:
+        if record:
+            mon.start_recording(record)
+        source, write = mon.tap(call, call.write)
+    else:
+        source, write = call, call.write
     player = Player(write)
     stt = with_filler(stt, player, fillers)
     try:
@@ -171,6 +177,11 @@ def run_caller(url, publish, lang="hi", whisper="base", speakers=False):
     finally:
         player.close()
         call.close()
+        if mon and record:
+            saved = mon.stop_recording()
+            if saved:
+                sec = round(pathlib.Path(saved).stat().st_size / 32000, 1)
+                print(f"saved call recording to: {saved} ({sec}s)")
 
 
 async def serve(hub, port):
@@ -224,6 +235,9 @@ def main(argv=None):
     ap.add_argument("--http-port", type=int, default=8000)
     ap.add_argument("--caller-port", type=int, default=8766, help="virtual caller port for --demo")
     ap.add_argument("--speakers", action="store_true", help="play both sides of the call on this machine (--demo/--caller)")
+    ap.add_argument("--record", nargs="?", const="bench/results/demo_call.wav", default="bench/results/demo_call.wav",
+                    help="record call to a 16 kHz WAV file (default: bench/results/demo_call.wav)")
+    ap.add_argument("--no-record", action="store_true", help="disable recording the call")
     a = ap.parse_args(argv)
 
     if a.demo:
@@ -234,6 +248,7 @@ def main(argv=None):
 
     speed = a.speed if a.corpus else 1.0
     hub = Hub(clock=lambda: time.monotonic() * speed)        # counter runs on script time, like the transcript
+    rec_target = None if a.no_record else a.record
 
     def calls():
         time.sleep(1.5)                             # let a browser connect before the first event
@@ -243,7 +258,7 @@ def main(argv=None):
             if a.corpus:
                 replay_corpus(a.corpus, hub.publish, a.speed)
             elif a.caller:
-                run_caller(a.caller, hub.publish, a.lang, a.whisper, a.speakers)
+                run_caller(a.caller, hub.publish, a.lang, a.whisper, a.speakers, record=rec_target)
             else:
                 run_wavs(a.wav, hub.publish, a.lang, a.whisper)
             if not a.loop:
