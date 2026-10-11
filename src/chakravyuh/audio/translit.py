@@ -30,7 +30,7 @@ LEXICON = {
     "wahi": "वही", "wo": "वो", "woh": "वो", "ya": "या", "ye": "ये", "yeh": "ये", "zara": "ज़रा", "zor": "ज़ोर",
     "hum": "हम", "tum": "तुम", "kab": "कब", "kahan": "कहाँ", "kaise": "कैसे", "kyun": "क्यों", "kyon": "क्यों",
     "sab": "सब", "samajh": "समझ", "ruk": "रुक", "jaldi": "जल्दी", "dhanyavaad": "धन्यवाद",
-    "raghunath": "रघुनाथ",
+    "raghunath": "रघुनाथ", "hmm": "हम्म",
     # English loanwords as Hindi speakers say them
     "account": "अकाउंट", "app": "ऐप", "bill": "बिल", "bot": "बॉट", "code": "कोड", "detail": "डिटेल",
     "details": "डिटेल्स", "error": "एरर", "exceed": "एक्सीड", "fail": "फ़ेल", "hello": "हेलो", "hi": "हाय",
