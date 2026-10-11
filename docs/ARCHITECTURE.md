@@ -1,5 +1,11 @@
 # Architecture
 
+Exported diagrams for the submission (edit the SVG, then re-export the PNG at 2x):
+[`diagrams/architecture.png`](diagrams/architecture.png) (system) and [`diagrams/data-loop.png`](diagrams/data-loop.png)
+(AI framework / data loop). The Mermaid versions below are the editable sketches.
+
+![System architecture](diagrams/architecture.png)
+
 ## System
 
 ```mermaid
