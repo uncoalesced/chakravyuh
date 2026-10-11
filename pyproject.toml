@@ -14,7 +14,7 @@ dependencies = []                      # core logic is stdlib-only on purpose
 
 [project.optional-dependencies]
 dev = ["pytest"]
-dashboard = ["websockets>=13"]
+dashboard = ["websockets>=13", "sounddevice"]   # sounddevice only for --speakers
 audio = ["numpy", "onnxruntime", "faster-whisper", "piper-tts"]   # owned by Jammy; Silero model file: pip install silero-vad --no-deps
 
 [tool.setuptools.packages.find]

@@ -33,11 +33,13 @@ class WhisperSTT:
     """faster-whisper on one utterance (16 kHz mono PCM16 bytes) -> text.
     language="en" keeps Hinglish in Roman script but tends to translate it; see bench/README.md for the trade-off."""
 
-    def __init__(self, model="small", device="auto", compute_type="int8", language: Optional[str] = "en",
+    def __init__(self, model="small", device="auto", compute_type: Optional[str] = None, language: Optional[str] = "en",
                  beam_size=1, max_no_speech=0.6):
         import numpy as np
         from faster_whisper import WhisperModel
         self._np = np
+        if compute_type is None or (compute_type == "int8" and device == "cuda"):
+            compute_type = "float16" if device == "cuda" else "int8" if device == "cpu" else "default"
         self.model = WhisperModel(model, device=device, compute_type=compute_type)
         self.language, self.beam_size, self.max_no_speech = language, beam_size, max_no_speech
 

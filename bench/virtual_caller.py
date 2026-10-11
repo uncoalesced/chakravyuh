@@ -153,7 +153,7 @@ async def serve(script, tts, port, once, label, **kw):
 
     async with ws_serve(handler, "127.0.0.1", port, max_size=None):
         print(f"virtual caller waiting on ws://127.0.0.1:{port}")
-        await done.wait() if once else asyncio.Future()
+        await (done.wait() if once else asyncio.Future())     # without parens this would not await the Future
 
 
 def main(argv=None):

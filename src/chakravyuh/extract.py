@@ -25,7 +25,7 @@ _UPI = re.compile(r"(?<![\w.\-@])([A-Za-z0-9][\w.\-]{2,48})(?:\s*(@)\s*|\s+at\s+
                   r"([A-Za-z][A-Za-z0-9]{1,30})(?![\w]|\.[A-Za-z])", re.I)
 _STOP = {"id", "upi", "ids", "the", "and"}
 _SEP = r"[\s,.\-]*"
-_IFSC = re.compile(rf"(?<![A-Za-z0-9])((?:[A-Za-z]{_SEP}){{4}})[0Oo]{_SEP}((?:[A-Za-z0-9]{_SEP}){{6}})(?![A-Za-z0-9])")
+_IFSC = re.compile(rf"(?<![A-Za-z0-9])((?:[A-Za-z]{_SEP}){{4}})([0Oo]){_SEP}((?:[A-Za-z0-9]{_SEP}){{6}})(?![A-Za-z0-9])")
 _NUM = re.compile(r"\+?\d[\d\s\-]{6,}\d")
 _NOT_ACCOUNT = re.compile(r"utr|ref|transaction|otp|pin", re.I)
 _URL = re.compile(r"https?://[^\s<>\"']+|\b(?:bit\.ly|tinyurl\.com|cutt\.ly|rb\.gy|is\.gd|t\.co|ngrok-free\.app|page\.link)/[^\s<>\"']+|\b[A-Za-z0-9\-]+\.(?:com|org|net|in|co|io|example|me|app)/[^\s<>\"']+", re.I)
@@ -51,7 +51,9 @@ def speech_digits(text: str) -> str:
 
 def normalize_spoken(text: str) -> str:
     """Normalize spoken punctuation (dot -> ., slash -> /) around symbols and identifiers."""
-    t = re.sub(r"(?<=[A-Za-z0-9\-])\s+dot\s+(?=[A-Za-z0-9\-])", ".", text, flags=re.I)
+    t = re.sub(r"\b([A-Za-z](?:\s+[A-Za-z])+)\b(?=\s*(?:\.|\bdot\b|\@|\bat\b))", lambda m: re.sub(r"\s+", "", m.group(1)), text, flags=re.I)
+    t = re.sub(r"(\b(?:dot|\.)\s*)([A-Za-z](?:\s+[A-Za-z])+)\b(?=\s*(?:\.|\bdot\b|\@|\bat\b))", lambda m: m.group(1) + re.sub(r"\s+", "", m.group(2)), t, flags=re.I)
+    t = re.sub(r"(?<=[A-Za-z0-9\-])\s+dot\s+(?=[A-Za-z0-9\-])", ".", t, flags=re.I)
     t = re.sub(r"(?<=[A-Za-z0-9\-])\s+slash\s+(?=[A-Za-z0-9\-])", "/", t, flags=re.I)
     return t
 
@@ -66,9 +68,16 @@ def _upi(t, add):
 
 def _ifsc(t, add):
     for m in _IFSC.finditer(t):
-        code = re.sub(r"[^A-Za-z0-9]", "", m.group(1)).upper() + "0" + re.sub(r"[^A-Za-z0-9]", "", m.group(2)).upper()
+        bank = re.sub(r"[^A-Za-z0-9]", "", m.group(1)).upper()
+        fifth = m.group(2)
+        branch = re.sub(r"[^A-Za-z0-9]", "", m.group(3)).upper()
+        code = bank + "0" + branch
         if len(code) == 11:
-            ok = code[:4] in _BANKS
+            if not any(c.isdigit() for c in branch):
+                continue
+            if fifth in "oO" and bank not in _BANKS:
+                continue
+            ok = bank in _BANKS
             add("ifsc", code, ok, "" if ok else "bank code not in known list")
 
 
@@ -98,6 +107,15 @@ def extract(text: str, ts: float = 0.0) -> list:
     variations = (text, speech_digits(text), normalize_spoken(text), normalize_spoken(speech_digits(text)))
     for t in variations:
         _upi(t, add); _ifsc(t, add); _numbers(t, add); _urls(t, add)
+    upis = [v for k, v in out.items() if k[0] == "upi"]
+    for u1 in upis:
+        local1, domain1 = u1.value.split("@", 1)
+        for u2 in upis:
+            if u1 is not u2:
+                local2, domain2 = u2.value.split("@", 1)
+                if domain1 == domain2 and local2.endswith("." + local1):
+                    out.pop(("upi", u1.value), None)
+                    break
     return list(out.values())
 
 

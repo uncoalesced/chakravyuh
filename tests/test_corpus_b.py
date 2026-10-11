@@ -22,14 +22,12 @@ def test_scripts_are_synthetic(name):
     assert all(u.split("/")[2].endswith(".example") for u in re.findall(r"https?://\S+", text))
 
 
-@pytest.mark.xfail(strict=True, reason="extract.py: letter-O IFSC and spoken-dot UPI give extra matches (raised with Joel)")
 @pytest.mark.parametrize("name", ["digital_arrest", "kyc_block"])
 def test_capture_is_exactly_what_the_caller_said(name):
     exp = load(name)["expect"]
     assert captured(name) == {(k, v) for k in EXPECTED_KINDS for v in exp.get(k, [])}
 
 
-@pytest.mark.xfail(strict=True, reason="extract.py: '[0Oo]' in the IFSC pattern matches ordinary Hinglish/English words")
 @pytest.mark.parametrize("phrase", ["UPI se bhejo abhi ke abhi", "Sir are you doing it or not?"])
 def test_everyday_phrases_are_not_ifsc(phrase):
     assert not [i for i in extract(phrase) if i.kind == "ifsc"]

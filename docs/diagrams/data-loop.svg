@@ -1,0 +1,99 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" width="1600" height="900" font-family="-apple-system, 'Segoe UI', Roboto, 'Noto Sans', sans-serif">
+  <!-- Engineered by uncoalesced. AI framework / data loop. Source of truth: docs/ARCHITECTURE.md -->
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#3a3a3c"/>
+    </marker>
+    <marker id="ai" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#4c51bf"/>
+    </marker>
+    <style>
+      .t { font-size: 20px; font-weight: 650; fill: #1d1d1f; }
+      .s { font-size: 14.5px; fill: #48484a; }
+      .m { font-size: 12.5px; fill: #6e6e73; font-family: ui-monospace, 'SF Mono', Consolas, monospace; }
+      .lab { font-size: 13.5px; fill: #3a3a3c; font-weight: 550; }
+      .n { fill: #ffffff; stroke: #3a3a3c; stroke-width: 1.6; }
+      .ai { fill: #eceefe; stroke: #4c51bf; stroke-width: 1.8; }
+      .cap { fill: #e6f6f4; stroke: #0f8a7e; stroke-width: 1.6; }
+      .ln { stroke: #3a3a3c; stroke-width: 2.2; fill: none; }
+      .li { stroke: #4c51bf; stroke-width: 2.2; fill: none; stroke-dasharray: 7 5; }
+    </style>
+  </defs>
+
+  <rect width="1600" height="900" fill="#ffffff"/>
+  <text x="40" y="58" font-size="30" font-weight="700" fill="#1d1d1f">Chakravyuh: AI framework and data loop</text>
+  <text x="40" y="88" class="s" font-size="16">The caller closes the loop. The state machine steers the call toward the moment a payee detail must be read aloud, then asks for repeats.</text>
+
+  <!-- the loop -->
+  <rect x="80" y="330" width="250" height="120" rx="16" class="n"/>
+  <text x="100" y="365" class="t">Caller speech</text>
+  <text x="100" y="391" class="s">Pressure, threats,</text>
+  <text x="100" y="411" class="s">payment instructions</text>
+
+  <rect x="430" y="170" width="250" height="120" rx="16" class="n"/>
+  <text x="450" y="205" class="t">Transcript</text>
+  <text x="450" y="231" class="s">VAD endpointing +</text>
+  <text x="450" y="251" class="s">speech to text</text>
+  <text x="450" y="275" class="m">final turns only</text>
+
+  <rect x="780" y="170" width="300" height="150" rx="16" class="ai"/>
+  <text x="800" y="205" class="t">Persona state machine</text>
+  <text x="800" y="231" class="s">Reads cues: payment words,</text>
+  <text x="800" y="251" class="s">new details, time, turns</text>
+  <text x="800" y="281" class="m">PANIC · STALLING · BAITING</text>
+  <text x="800" y="299" class="m">EXTRACTING · WRAPUP</text>
+
+  <rect x="780" y="450" width="300" height="150" rx="16" class="ai"/>
+  <text x="800" y="485" class="t">Persona reply</text>
+  <text x="800" y="511" class="s">State goal → local LLM wording</text>
+  <text x="800" y="531" class="s">→ safety filter → scripted fallback</text>
+  <text x="800" y="561" class="m">no digits, no OTP, no links,</text>
+  <text x="800" y="579" class="m">never admits being software</text>
+
+  <rect x="430" y="490" width="250" height="120" rx="16" class="n"/>
+  <text x="450" y="525" class="t">Caller reacts</text>
+  <text x="450" y="551" class="s">Reads out UPI ID, account,</text>
+  <text x="450" y="571" class="s">IFSC, number, app link</text>
+
+  <path d="M330 365 C 380 300, 390 240, 422 232" class="ln" marker-end="url(#a)"/>
+  <path d="M680 230 H772" class="ln" marker-end="url(#a)"/>
+  <path d="M930 320 V442" class="ln" marker-end="url(#a)"/>
+  <text x="918" y="388" class="lab" text-anchor="end">intent for this turn</text>
+  <path d="M780 540 C 740 545, 720 550, 688 550" class="ln" marker-end="url(#a)"/>
+  <text x="700" y="522" class="lab">spoken</text>
+  <text x="700" y="538" class="lab">(Piper)</text>
+  <path d="M430 550 C 380 545, 300 520, 230 458" class="ln" marker-end="url(#a)"/>
+
+  <!-- capture branch -->
+  <rect x="1180" y="170" width="300" height="130" rx="16" class="cap"/>
+  <text x="1200" y="205" class="t">Extraction</text>
+  <text x="1200" y="231" class="s">Spoken digits, "at the rate",</text>
+  <text x="1200" y="251" class="s">"dot", spelled IFSC</text>
+  <text x="1200" y="281" class="m">format checks only</text>
+
+  <rect x="1180" y="400" width="300" height="120" rx="16" class="cap"/>
+  <text x="1200" y="435" class="t">Intel vault</text>
+  <text x="1200" y="461" class="s">Deduplicated, timestamped,</text>
+  <text x="1200" y="481" class="s">kept on this machine</text>
+
+  <rect x="1180" y="620" width="300" height="130" rx="16" class="n"/>
+  <text x="1200" y="655" class="t">Report for review</text>
+  <text x="1200" y="681" class="s">A person submits it through</text>
+  <text x="1200" y="701" class="s">1930 / cybercrime.gov.in /</text>
+  <text x="1200" y="721" class="s">Chakshu</text>
+
+  <path d="M555 170 C 560 120, 1300 110, 1325 162" class="ln" marker-end="url(#a)"/>
+  <text x="880" y="122" class="lab">every transcript</text>
+  <path d="M1330 300 V392" class="ln" marker-end="url(#a)"/>
+  <path d="M1330 520 V612" class="ln" marker-end="url(#a)"/>
+  <path d="M1180 460 H1135 V250 H1088" class="li" marker-end="url(#ai)"/>
+  <text x="1124" y="378" class="lab" fill="#4c51bf" text-anchor="end">new detail →</text>
+  <text x="1124" y="396" class="lab" fill="#4c51bf" text-anchor="end">ask for repeats</text>
+
+  <!-- footer -->
+  <rect x="80" y="700" width="18" height="18" rx="4" class="ai"/>
+  <text x="108" y="714" class="s">AI decision and wording (FSM owns intent, LLM owns wording)</text>
+  <rect x="80" y="732" width="18" height="18" rx="4" class="cap"/>
+  <text x="108" y="746" class="s">Capture: format-checked identifiers, never claimed as verified or fraudulent</text>
+  <text x="80" y="800" class="s">Two rounds per call: after details are captured, a believable payment failure prompts a second identifier, then the persona hands off.</text>
+</svg>

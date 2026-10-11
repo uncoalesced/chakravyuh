@@ -64,3 +64,12 @@ def test_autonomous_call_completes_and_measures_turn_gaps():
 def test_summary_percentiles():
     s = vc.summary([{"gap_s": g} for g in (1.0, 2.0, 3.0, None)])
     assert s == {"turns": 4, "answered": 3, "gap_p50_s": 2.0, "gap_p90_s": 3.0, "gap_max_s": 3.0}
+
+def test_serve_keeps_answering_calls_until_stopped():
+    async def main():
+        task = asyncio.create_task(vc.serve(SCRIPT, lambda text: tone(0.05), 8797, False, "test"))
+        await asyncio.sleep(0.5)
+        alive = not task.done()                       # regression: non-once mode used to exit straight away
+        task.cancel()
+        return alive
+    assert asyncio.run(main())
