@@ -40,9 +40,17 @@ The caller now hears the persona about 50 ms after the endpoint wait ends. The r
 Hindi run of the same setup (`digital_arrest`, whisper base, 11/11 answered): turn gap p50 2.9 s, p90 5.3 s.
 Hindi turns are longer and whisper spends longer on them.
 
-### Demo GPU
-Not measured yet. Run on the demo machine with the LLM enabled:
-`python bench/latency.py --corpus kyc_block --whisper small --device cuda --llm --label "demo GPU"`.
+### Demo GPU (11 Oct 2026)
+`python bench/latency.py --corpus kyc_block --whisper small --device cuda --label "demo GPU"` · whisper small float16 (NVIDIA RTX 5050 Laptop GPU) · Piper en_GB-alan · scripted persona · 11/11 turns answered · log `latency_kyc_block_20261011_164022.json`
+
+| Stage | p50 | p90 | Target (ARCHITECTURE.md) |
+|---|---|---|---|
+| Endpoint wait (VAD silence) | 608 ms | 608 ms | <= 300 ms |
+| Speech to text (CUDA float16) | 382 ms | 444 ms | <= 300 ms |
+| Persona core (scripted) | 0 ms | 1 ms | first LLM token <= 400 ms |
+| TTS to first audio (cached) | 0 ms | 0 ms | <= 200 ms |
+| Reply ready (endpoint to real reply queued) | 1062 ms | 5625 ms | |
+| **Turn gap (caller hears first audio)** | **641 ms** | **657 ms** | **p50 < 1.2 s** |
 
 ## What the breakdown says
 - **Endpoint wait is fixed at 600 ms**, set by T1.1's "pause > 600 ms" rule, and already twice the 300 ms budget. Dropping it
