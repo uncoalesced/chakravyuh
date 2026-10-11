@@ -13,7 +13,7 @@ from typing import Callable, Iterable, Iterator
 
 FILLERS = {
     "hi": ["Haan ji...", "Ek second sahab...", "Hmm... haan...", "Achha achha...", "Ji sahab, ruko...", "Haan haan..."],
-    "en": ["Yes, yes...", "One second, sir...", "Hmm... okay...", "Oh... alright...", "Just a moment...", "Yes sir..."],
+    "en": ["Haan sir, haan...", "Arey ek second sir...", "Haan haan baba...", "Aiyyo, wait na...", "Haan sir, wait wait...", "Achha, okay okay..."],
 }
 
 

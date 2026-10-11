@@ -24,7 +24,10 @@ sys.path.insert(0, str(ROOT / "src"))
 FRAME_MS = 20
 FRAME_BYTES = 16 * FRAME_MS * 2
 SILENCE = b"\0" * FRAME_BYTES
-CALLER_VOICE = {"hi": "hi_IN-pratham-medium", "en": "en_US-ryan-medium"}
+CALLER_VOICE = {
+    "hi": "hi_IN-pratham-medium",
+    "en": "en_IN-spicor-medium" if (ROOT / "models" / "piper" / "en_IN-spicor-medium.onnx").exists() else "en_US-ryan-medium",
+}
 
 
 def load_script(name):
