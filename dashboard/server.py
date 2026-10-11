@@ -5,6 +5,7 @@
     python dashboard/server.py --corpus electricity_disconnect --speed 2 --loop     # text replay, no models
     python dashboard/server.py --wav bench/clips/0*.wav                             # full audio pipeline
     python dashboard/server.py --caller ws://127.0.0.1:8766                         # answer bench/virtual_caller.py
+    python dashboard/server.py --demo digital_arrest --loop --speakers               # both, one command, audible
 
 WebSocket on ws://127.0.0.1:8765; the built page (dashboard/web/dist) on http://127.0.0.1:8000.
 Binds to localhost only: the feed carries captured identifiers (docs/GUARDRAILS.md section 6)."""
@@ -122,24 +123,50 @@ def run_wavs(paths, publish, lang="hi", whisper="small"):
         player.close()
 
 
-def run_caller(url, publish, lang="hi", whisper="base"):
-    """Answer a call from bench/virtual_caller.py (or any WebSocket line) with the full audio pipeline.
-    Persona audio goes back down the line, so the caller hears it and measures the turn gap."""
-    from chakravyuh.audio.fillers import CachedTTS, Fillers, persona_lines, with_filler
-    from chakravyuh.audio.playback import Player
+@functools.lru_cache(maxsize=None)
+def agent_models(lang, whisper):
+    """Whisper, the persona voice (with scripted-line cache) and fillers. Loaded once per process: building the
+    voice cache takes ~10 s on CPU, which a looping demo should pay only at startup."""
+    from chakravyuh.audio.fillers import CachedTTS, Fillers, persona_lines
     from chakravyuh.audio.stt import WhisperSTT
     from chakravyuh.audio.tts import PiperTTS
+    voice = PiperTTS(lang)
+    return WhisperSTT(whisper), CachedTTS(voice, persona_lines(lang)), Fillers(voice, lang)
+
+
+def start_virtual_caller(corpus, port):
+    """bench/virtual_caller.py in a background thread, answering every connection (for --demo)."""
+    sys.path.insert(0, str(ROOT / "bench"))
+    import virtual_caller as vc
+    script = vc.load_script(corpus)
+    tts = vc.piper_voice(script["lang"])
+    threading.Thread(target=lambda: asyncio.run(vc.serve(script, tts, port, False, "dashboard --demo")),
+                     name="chakravyuh-virtual-caller", daemon=True).start()
+    return script["lang"]
+
+
+@functools.lru_cache(maxsize=None)
+def speaker_monitor():
+    from chakravyuh.audio.monitor import SpeakerMonitor
+    return SpeakerMonitor()
+
+
+def run_caller(url, publish, lang="hi", whisper="base", speakers=False):
+    """Answer a call from bench/virtual_caller.py (or any WebSocket line) with the full audio pipeline.
+    Persona audio goes back down the line, so the caller hears it and measures the turn gap."""
+    from chakravyuh.audio.fillers import with_filler
+    from chakravyuh.audio.playback import Player
     from chakravyuh.audio.vad import Endpointer, SileroVAD
     from chakravyuh.audio.ws import WebSocketCall
     from chakravyuh.pipeline import run_pipeline
 
-    voice = PiperTTS(lang)                                       # load models and caches before answering
-    stt, tts, fillers = WhisperSTT(whisper), CachedTTS(voice, persona_lines(lang)), Fillers(voice, lang)
+    stt, tts, fillers = agent_models(lang, whisper)
     call = WebSocketCall(url)
-    player = Player(call.write)
+    source, write = speaker_monitor().tap(call, call.write) if speakers else (call, call.write)
+    player = Player(write)
     stt = with_filler(stt, player, fillers)
     try:
-        run_pipeline(call, Endpointer(SileroVAD()), stt, PersonaFSM(lang=lang), tts, player,
+        run_pipeline(source, Endpointer(SileroVAD()), stt, PersonaFSM(lang=lang), tts, player,
                      simulated=True, on_event=publish)
     finally:
         player.close()
@@ -188,24 +215,35 @@ def main(argv=None):
     src.add_argument("--corpus", help="corpus script id, e.g. digital_arrest")
     src.add_argument("--wav", nargs="+", help="16 kHz mono wav clips, played as one call")
     src.add_argument("--caller", help="WebSocket line to answer, e.g. ws://127.0.0.1:8766 (bench/virtual_caller.py)")
+    src.add_argument("--demo", metavar="CORPUS", help="start the virtual caller for this script and answer it (live demo)")
     ap.add_argument("--speed", type=float, default=1.0, help="corpus replay speed-up")
     ap.add_argument("--loop", action="store_true", help="restart the call when it ends (demo kiosk)")
     ap.add_argument("--lang", default="hi", help="persona language for --wav / --caller")
     ap.add_argument("--whisper", default="base", help="faster-whisper model for --wav / --caller")
     ap.add_argument("--ws-port", type=int, default=8765)
     ap.add_argument("--http-port", type=int, default=8000)
+    ap.add_argument("--caller-port", type=int, default=8766, help="virtual caller port for --demo")
+    ap.add_argument("--speakers", action="store_true", help="play both sides of the call on this machine (--demo/--caller)")
     a = ap.parse_args(argv)
+
+    if a.demo:
+        a.lang = start_virtual_caller(a.demo, a.caller_port)
+        a.caller = f"ws://127.0.0.1:{a.caller_port}"
+        print(f"loading models for {a.demo} ({a.lang}, whisper {a.whisper})...")
+        agent_models(a.lang, a.whisper)                         # load before the first call, not during it
 
     speed = a.speed if a.corpus else 1.0
     hub = Hub(clock=lambda: time.monotonic() * speed)        # counter runs on script time, like the transcript
 
     def calls():
         time.sleep(1.5)                             # let a browser connect before the first event
+        if a.caller:
+            agent_models(a.lang, a.whisper)
         while True:
             if a.corpus:
                 replay_corpus(a.corpus, hub.publish, a.speed)
             elif a.caller:
-                run_caller(a.caller, hub.publish, a.lang, a.whisper)
+                run_caller(a.caller, hub.publish, a.lang, a.whisper, a.speakers)
             else:
                 run_wavs(a.wav, hub.publish, a.lang, a.whisper)
             if not a.loop:
