@@ -64,9 +64,10 @@ Milestones anchored to Hackathon submission: **23 Oct 2026, 5:00 pm IST**.
 - [x] **T4.1 Architecture & Data-Loop Diagrams** (Jammy):
   - Export system architecture and AI framework / data-loop SVG diagrams and 2x PNGs.
   - Acceptance: High-resolution diagrams linked in `docs/ARCHITECTURE.md`.
-- [x] **T4.2 One-Command Audible Demo** (Jammy):
-  - Add `--demo CORPUS` and `--speakers` monitor in `dashboard/server.py`.
-  - Acceptance: `python dashboard/server.py --demo kyc_block --loop --speakers` streams audible call locally.
+- [x] **T4.2 One-Command Audible Demo & Call Recording** (Jammy & Joel):
+  - Add `--demo CORPUS`, `--speakers` monitor, and `--record` in `dashboard/server.py`.
+  - Anti-aliased polyphase resampling (eliminates robotic scammer artifacts), elderly acoustic shaping for persona (pitch down -2.6 semitones, 320Hz chest resonance, vocal age tremor, and vocal fry/gravel harmonic excitation).
+  - Acceptance: `python dashboard/server.py --demo kyc_block --loop --speakers` streams audible call locally and saves clean 16 kHz WAV recording to `bench/results/demo_call.wav`.
 - [x] **T4.3 Demo Runbook & Guardrails Review** (Jammy & Joel):
   - Create `docs/DEMO_RUNBOOK.md` covering judge-facing beats, checklists, fallback ladder, and likely Q&A reviewed against `docs/GUARDRAILS.md`.
   - Acceptance: Runbook verified and aligned with team guardrails.
