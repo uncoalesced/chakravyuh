@@ -66,6 +66,8 @@ def test_ollama_stream_sentences():
 
     class StreamH(BaseHTTPRequestHandler):
         def do_POST(self):
+            if cl := self.headers.get("Content-Length"):
+                self.rfile.read(int(cl))
             self.send_response(200)
             self.send_header("Content-Type", "application/x-ndjson")
             self.send_header("Content-Length", str(len(ndjson)))
@@ -85,4 +87,5 @@ def test_ollama_stream_sentences():
         assert list(llm_stream("System", [])) == ["One moment sir.", "I am looking for pen."]
     finally:
         srv.shutdown()
+        srv.server_close()
 

@@ -22,12 +22,12 @@ public services). Chakravyuh is a speech-and-agent system that assists people ta
 ## Required deliverables -> where they come from
 | Required | Our artifact | Status |
 |---|---|---|
-| Working physical prototype, or simulation with a physical interface | Phone line bridge (cable) or speaker-and-mic loop; virtual caller as the simulated source | in progress |
-| Problem definition document | `docs/PROBLEM.md` (Joel) | drafted |
+| Working physical prototype, or simulation with a physical interface | Virtual caller simulation with speaker monitor (`python dashboard/server.py --demo kyc_block --loop --speakers`); phone cable optional fallback | done |
+| Problem definition document | `docs/PROBLEM.md` (Joel) | done |
 | System architecture diagram | `docs/diagrams/architecture.png` (source `.svg`) | done |
 | AI framework / data-loop diagram | `docs/diagrams/data-loop.png` (source `.svg`) | done |
 | Live demonstration of autonomous task completion | `python dashboard/server.py --demo kyc_block --loop --speakers`; script in `docs/DEMO_RUNBOOK.md` | ready, rehearse |
-| Devpost project page, video, repo link | Written in phase 4-5 | todo |
+| Devpost project page, video, repo link | `docs/DEVPOST.md` (submission text, pitch narrative, architecture summary) | done |
 
 ## Actions that need a human
 - [ ] Complete **both** registrations: the Devpost registration and the official offline/web registration form at nextgenexpo.raaif.org.

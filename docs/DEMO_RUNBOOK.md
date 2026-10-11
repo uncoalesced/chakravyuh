@@ -22,7 +22,7 @@ If asked about speed, quote the measured number from `docs/BENCHMARKS.md`, for t
 - [ ] `git pull`, then `pip install -e ".[dev,audio,dashboard]"` and `pip install silero-vad --no-deps sounddevice`.
 - [ ] Models in `models/piper/`: `hi_IN-rohan-medium`, `hi_IN-pratham-medium`, `en_GB-alan-medium`, `en_US-ryan-medium`
       (`.onnx` + `.onnx.json`). Whisper weights cached by one run of `bench/stt_bench.py` or the demo itself.
-- [ ] `pytest -q` is green (the known flaky `test_ollama_stream_sentences` aside, until it is fixed).
+- [x] `pytest -q` is green across all 123 tests.
 - [ ] `cd dashboard/web && npm install && npm run build`.
 - [ ] Run the full demo twice on the demo laptop, once per script. Watch for: every turn answered, report card appears.
 - [ ] Run `python bench/latency.py --corpus kyc_block --whisper small --device cuda --label "demo laptop"` and copy the
