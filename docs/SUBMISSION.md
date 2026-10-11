@@ -23,10 +23,10 @@ public services). Chakravyuh is a speech-and-agent system that assists people ta
 | Required | Our artifact | Status |
 |---|---|---|
 | Working physical prototype, or simulation with a physical interface | Phone line bridge (cable) or speaker-and-mic loop; virtual caller as the simulated source | in progress |
-| Problem definition document | `docs/PROBLEM.md` (to write, Joel, phase 4) | todo |
-| System architecture diagram | `docs/ARCHITECTURE.md` -> exported image | drafted |
-| AI framework / data-loop diagram | `docs/ARCHITECTURE.md` data loop -> exported image | drafted |
-| Live demonstration of autonomous task completion | Scripted caller -> persona -> intel -> report, no human in the loop | todo |
+| Problem definition document | `docs/PROBLEM.md` (Joel) | drafted |
+| System architecture diagram | `docs/diagrams/architecture.png` (source `.svg`) | done |
+| AI framework / data-loop diagram | `docs/diagrams/data-loop.png` (source `.svg`) | done |
+| Live demonstration of autonomous task completion | `python dashboard/server.py --demo kyc_block --loop --speakers`; script in `docs/DEMO_RUNBOOK.md` | ready, rehearse |
 | Devpost project page, video, repo link | Written in phase 4-5 | todo |
 
 ## Actions that need a human
