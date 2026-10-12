@@ -148,7 +148,7 @@ def start_virtual_caller(corpus, port):
 @functools.lru_cache(maxsize=None)
 def speaker_monitor(speakers=True, record=None):
     from chakravyuh.audio.monitor import SpeakerMonitor
-    return SpeakerMonitor(start=speakers, record_path=record)
+    return SpeakerMonitor(start=speakers, record_path=record, pace=not speakers)   # pace: record without a speaker
 
 
 def run_caller(url, publish, lang="hi", whisper="base", speakers=False, record=None):

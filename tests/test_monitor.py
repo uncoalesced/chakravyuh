@@ -50,3 +50,16 @@ def test_start_and_stop_recording(tmp_path):
         assert wf.getframerate() == 16000
         assert wf.getnframes() == 2
         assert wf.readframes(2) == chunk
+
+
+def test_recording_works_without_speakers(tmp_path):
+    import time, wave
+    out = tmp_path / "rec.wav"
+    mon = SpeakerMonitor(start=False, pace=True)               # --record without --speakers
+    mon.start_recording(str(out))
+    mon.feed("caller", pcm(*([1000] * 3200)))                 # 0.2 s of caller audio
+    time.sleep(0.35)
+    assert mon.stop_recording() == str(out)
+    with wave.open(str(out), "rb") as wf:
+        audio = wf.readframes(wf.getnframes())
+    assert wf.getnframes() >= 3200 and pcm(1000) in audio
