@@ -12,14 +12,14 @@ from chakravyuh.audio.translit import to_devanagari
 
 VOICES = pathlib.Path(__file__).parents[3] / "models" / "piper"
 DEFAULT_VOICE = {
-    "hi": "hi_IN-rohan-medium",
+    "hi": "raghunath_elderly-medium" if (VOICES / "raghunath_elderly-medium.onnx").exists() else "hi_IN-rohan-medium",
     "en": "en_IN-spicor-medium" if (VOICES / "en_IN-spicor-medium.onnx").exists() else "en_GB-alan-medium",
 }
 
 
 class PiperTTS:
     def __init__(self, lang="hi", voice=None, length_scale=None, elderly=True,
-                 noise_scale=None, noise_w_scale=None):
+                 noise_scale=None, noise_w_scale=None, phone_filter=False):
         import numpy as np
         import scipy.signal
         from piper import PiperVoice, SynthesisConfig
@@ -33,10 +33,18 @@ class PiperTTS:
         self.voice = PiperVoice.load(str(path))
         self.rate = self.voice.config.sample_rate
         self.devanagari = self.voice.config.espeak_voice.startswith("hi")
-        self.elderly = elderly
+        self.is_custom = "raghunath" in str(path).lower() or "custom" in str(path).lower()
+        self.elderly = elderly and not self.is_custom
+        self.phone_filter = phone_filter
 
-        if elderly:
-            # Elderly persona (Raghunath): slower, hesitant, gravelly with lowered pitch
+        if self.is_custom:
+            # Custom trained persona voice (e.g., Raghunath): pitch and persona already acted
+            self.pitch_shift = 1.0
+            eff_length = length_scale if length_scale is not None else 1.05
+            ns = noise_scale if noise_scale is not None else 0.75
+            nws = noise_w_scale if noise_w_scale is not None else 0.80
+        elif self.elderly:
+            # Stock voice fallback with heuristic DSP modulation
             self.pitch_shift = 0.86  # ~2.6 semitones down
             target_cadence = length_scale if length_scale is not None else 1.25
             eff_length = target_cadence * self.pitch_shift
@@ -48,7 +56,9 @@ class PiperTTS:
             ns = noise_scale if noise_scale is not None else 0.72       # natural caller variation
             nws = noise_w_scale if noise_w_scale is not None else 0.82
 
-        self.cfg = SynthesisConfig(length_scale=eff_length, noise_scale=ns, noise_w_scale=nws)
+        # Custom voices come out normalized to full scale and clip; 0.8 leaves headroom
+        self.cfg = SynthesisConfig(length_scale=eff_length, noise_scale=ns, noise_w_scale=nws,
+                                   volume=0.8 if self.is_custom else 1.0)
 
     def synthesize(self, text: str) -> Iterator[bytes]:
         if self.devanagari:
@@ -89,5 +99,10 @@ class PiperTTS:
                 nx = x / m
                 gravel = nx + 0.15 * (nx ** 2) - 0.05 * (nx ** 3)
                 x = gravel * (m * 0.95)
+
+        if self.phone_filter:
+            # Clean 300 Hz - 3400 Hz cellular telephone bandpass
+            b_phone, a_phone = signal.butter(2, [300, 3400], "bandpass", fs=out_rate)
+            x = signal.lfilter(b_phone, a_phone, x)
 
         return np.clip(x, -32768, 32767).astype("<i2").tobytes()
