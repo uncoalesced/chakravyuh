@@ -20,7 +20,8 @@ def mix(a: bytes, b: bytes) -> bytes:
 
 
 class SpeakerMonitor:
-    def __init__(self, max_lag_s: float = 0.4, start: bool = True, record_path: str = None):
+    def __init__(self, max_lag_s: float = 0.4, start: bool = True, record_path: str = None, pace: bool = False):
+        """pace=True: with no speaker (start=False), pull audio at real-time speed so recording still fills."""
         self._bufs = {"caller": bytearray(), "persona": bytearray()}
         self._cap = int(max_lag_s * SAMPLE_RATE) * SAMPLE_WIDTH
         self._lock = threading.Lock()
@@ -28,21 +29,44 @@ class SpeakerMonitor:
         self._record_path = record_path
         self._rec_buf = bytearray()
         self._recording = bool(record_path)
+        self._pacer, self._pace = None, pace and not start
         if start:
             import sounddevice as sd
             self.stream = sd.RawOutputStream(samplerate=SAMPLE_RATE, channels=1, dtype="int16",
                                              blocksize=SAMPLE_RATE // 50, callback=self._callback)
             self.stream.start()
+        elif self._recording and self._pace:
+            self._start_pacer()
 
     def start_recording(self, path: str) -> None:
         with self._lock:
             self._record_path = path
             self._rec_buf.clear()
             self._recording = True
+        if self._pace:
+            self._start_pacer()
+
+    def _start_pacer(self):
+        """Without a speaker nothing pulls audio through take(), so recording would stay empty: pull it at the
+        speaker's pace instead."""
+        if self._pacer and self._pacer.is_alive():
+            return
+        def run():
+            import time
+            step, n, nxt = 0.02, SAMPLE_RATE // 50 * SAMPLE_WIDTH, time.monotonic()
+            while self._recording:
+                self.take(n)
+                nxt += step
+                time.sleep(max(nxt - time.monotonic(), 0))
+        self._pacer = threading.Thread(target=run, name="chakravyuh-record-pacer", daemon=True)
+        self._pacer.start()
 
     def stop_recording(self):
         with self._lock:
             self._recording = False
+        if self._pacer:
+            self._pacer.join(timeout=1)
+        with self._lock:
             path = self._record_path
             data = bytes(self._rec_buf)
             self._rec_buf.clear()

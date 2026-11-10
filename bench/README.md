@@ -33,6 +33,9 @@ Numbers quoted anywhere public come from a logged run on the demo machine, with 
   `silero_vad.onnx` in `models/`.
 - Piper Hindi voice (default `hi_IN-rohan-medium`): download `hi_IN-rohan-medium.onnx` and `.onnx.json` from
   `huggingface.co/rhasspy/piper-voices` (path `hi/hi_IN/rohan/medium/`) into `models/piper/`.
+- Other voices, same place: `hi_IN-pratham-medium` (Hindi caller), `en_GB-alan-medium` (English persona),
+  `en_US-ryan-medium` (English caller). `en_IN-spicor-medium` replaces both English voices when present; it is not in
+  the rhasspy catalogue, so check its source and licence before shipping it.
 
 ## Virtual caller (`virtual_caller.py`, task T3.1)
 
