@@ -57,28 +57,52 @@ Quality bar: no garbling on digits, UPI handles, IFSC codes or 15 s sentences; n
 3. **`validate_dataset.py`**: metadata/wav parity, 22,050 Hz mono 16-bit, durations, total minutes, peak and clipping, edge silence, duplicate text, non-Devanagari leakage, loudness spread, outliers. Pass/fail table. Packs `<voice>_dataset.zip`. Gate: at least 45 min usable and at most 2% clips failing.
 4. **One parameterised Colab notebook** `train_voice_colab.ipynb` (`VOICE = "vikram" | "raghunath_v2"` in cell 1), built from the proven notebook with the same pins, plus:
    - Preflight: GPU, disk, Python, base-checkpoint URL reachable, dataset zip present.
-   - Dataset upload via Drive or manual upload.
+   - Dataset delivery, in this order of preference: (a) **Drive + `gdown`**: `voicectl push` copies the zip into a Drive folder (Drive for Desktop sync folder, or `rclone`/Drive API if no desktop client), the zip is link-shared, and the notebook pulls it by file ID with `gdown`, zero clicks and no `drive.mount`; (b) `drive.mount` (normal browser tab only); (c) manual `files.upload()` as last resort. Verify SHA256 after download and abort on mismatch. Run the notebook in a normal browser tab, not the Claude pane, when Drive mount is needed.
+   - Results go back the same way: the notebook writes final zips and per-chunk backups to the Drive folder, and `voicectl pull` fetches them, so no manual download is needed.
+   - Cell 1 is the only cell a human edits (`VOICE`, `DRIVE_FILE_ID`, `TARGET_STEPS`); everything else is Run All.
    - Resumable chunked training. Every ~1,000 steps: export an ONNX, render the 40 held-out lines, zip and back up (Drive if mounted, else `files.download`). A reset loses at most one chunk; a resume cell picks up the latest checkpoint.
    - Budget by steps, not epochs: a 50-step dry run measures s/step and prints an ETA, then sets `max_epochs = base_epoch + ceil(target_steps / steps_per_epoch)`. Starting target ~8-12k steps for ~45 min of data; stop at plateau (validation loss plus listening). State whether free Colab (12 h cap) can finish and what to use if not (Colab Pro, Kaggle, or resume across sessions).
    - Batch size 16 by default; try 32 if VRAM allows. Keep fp16.
    - Final: choose the best checkpoint by held-out WER and listening; export `<name>.onnx` + `.onnx.json`, SHA256, zip.
 5. **`eval_voice.py`**: loads an ONNX through `PiperTTS`; renders the held-out lines, a digit/UPI stress set and a 15 s sentence; reports peak, clipping, real-time factor and Whisper round-trip WER; writes WAVs and a comparison page for A/B listening (like `raghunath_variants/`). Compare Raghunath v1 vs v2.
 6. **Wiring**: add `vikram` as a custom voice in `tts.py` (no elderly DSP, length_scale at most 1.0, tune noise and volume by ear and tests). Make `bench/virtual_caller.py` use Vikram for the demo scammer, falling back to pratham/ryan if the file is missing. `pytest -q` must stay green (125 passing at last count); add tests for voice selection.
-7. **`JOEL_TODO.md`** (do this FIRST, before building anything else): the exact, minimal list of what Joel must do and when. Joel no longer records; Aaron records all voices. Joel's part is review and approval (listen to A/B, pick winners), any Colab steps that need his account or a manual click (sign-in, Choose Files, GPU runtime), merging the PR, and anything in his territory (`fsm.py` etc.) that the new voices need. Include expected wall-clock time and what to send back. Self-contained and copy-pasteable; Joel will run it in a separate session.
+7. **`voicectl`: one command-line entry point for the whole workflow** (`voice_studio/voicectl.py`, plus a `voicectl.ps1` wrapper so it works from PowerShell on Windows). Subcommands, each idempotent and safe to re-run:
+   - `doctor`: checks Python, deps (sounddevice, scipy, faster-whisper, espeak-ng, onnxruntime), mic present, disk, Drive folder reachable, repo on the right branch; prints exactly how to fix each failure.
+   - `lines <voice>`: generate/refresh prompt sets and coverage report.
+   - `record <voice> [--session N]`: launches the upgraded teleprompter, resumes where it left off, shows progress (lines, minutes, % of the 45 min goal).
+   - `check <voice>`: runs `validate_dataset.py`; prints pass/fail and which clips to re-record.
+   - `push <voice>`: validate, pack, upload to Drive, write `DRIVE_FILE_ID` and SHA256 into a small `voices/<voice>.state.json`.
+   - `train <voice>`: opens the Colab notebook with cell 1 pre-filled (or prints the exact link and the one edit needed); `status` reads progress from the Drive folder (step, ETA, latest checkpoint).
+   - `pull <voice>`: fetches the finished zip, verifies SHA256, installs `.onnx` + `.onnx.json` into `models/piper/`.
+   - `eval <voice>`: runs `eval_voice.py`, writes the A/B page, opens it.
+   - `all <voice>`: runs doctor, check, push, then prints the single manual step (start Colab) and waits/polls `status`, then pull and eval.
+   - State lives in `voices/<voice>.state.json` (gitignored); every step reads and writes it so any stage can be resumed after a crash or a new session. Errors are plain English with the fix, never a bare traceback.
+   - README `voice_studio/README_VOICE.md`: one page, copy-paste commands, a 6-line quick start.
+8. **`JOEL_TODO.md`** (do this FIRST, before building anything else): the exact, minimal list of what Joel must do and when. Joel no longer records; Aaron records all voices. Joel's part is review and approval (listen to A/B, pick winners), any Colab steps that need his account or a manual click (sign-in, Choose Files, GPU runtime), merging the PR, and anything in his territory (`fsm.py` etc.) that the new voices need. Include expected wall-clock time and what to send back. Self-contained and copy-pasteable; Joel will run it in a separate session.
+
+## 3a. Seamless-workflow bar
+
+Every part of Aaron's work should run with one short command and no guessing. Test this yourself, as if you were Aaron on a fresh Windows machine:
+- Fresh clone to first recorded line in under 10 minutes: `voicectl doctor` then `voicectl record vikram`.
+- Closing the terminal mid-session or the Colab runtime resetting never loses recorded audio or more than one training chunk.
+- Never ask the human to edit code, paths or JSON. Anything configurable lives in cell 1 of the notebook or a `voices/<voice>.toml`.
+- Every failure prints what happened, why, and the exact command to fix it.
+- The only unavoidable manual steps are: Google sign-in, clicking Run All in Colab, and listening to the A/B. List them explicitly in `README_VOICE.md` and `JOEL_TODO.md`.
+- Add a `--dry-run` / `--fake` mode (synthetic audio, 20 steps) so the whole chain can be tested end to end without recording or a long GPU run.
 
 ## 4. Order of work
 
 1. Read the repo and this brief. Write the `JOEL_TODO.md` draft and send Aaron a short status.
 2. Line generator, coverage report and prompt sets for both voices. Aaron reviews.
 3. Recorder upgrade and validator. Dry-run 5 lines on Aaron's machine.
-4. Notebook and eval script. Smoke-test 100 steps on the existing 41-clip Raghunath set to prove the new notebook still trains.
+4. Notebook, eval script and `voicectl`. Smoke-test 100 steps on the existing 41-clip Raghunath set (or `--fake` data) to prove the new notebook still trains and that `push`/`pull` round-trip through Drive.
 5. Aaron records Vikram, then validate, train, eval, wire in.
 6. Aaron records Raghunath v2 in the different character/accent, then the same loop.
 7. A/B v1 vs v2 and ship the winner.
 
 ## 5. Definition of done
 
-Do not call anything done without: validator pass output, eval WAVs, and `pytest -q` output. If a pinned dependency breaks, report the exact error to Joel rather than changing pins.
+Do not call anything done without: validator pass output, eval WAVs, `pytest -q` output, a `voicectl all <voice> --fake` run that finishes cleanly, and tests for the pure logic in `voicectl` (state file, arg parsing, SHA check). If a pinned dependency breaks, report the exact error to Joel rather than changing pins.
 
 ## 6. Report back
 
