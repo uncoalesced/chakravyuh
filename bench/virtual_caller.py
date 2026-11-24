@@ -24,8 +24,13 @@ sys.path.insert(0, str(ROOT / "src"))
 FRAME_MS = 20
 FRAME_BYTES = 16 * FRAME_MS * 2
 SILENCE = b"\0" * FRAME_BYTES
+def _vikram():
+    from chakravyuh.audio.tts import first_voice
+    return first_voice("vikram_scammer-medium")     # trained caller voice, used when installed
+
+
 CALLER_VOICE = {
-    "hi": "hi_IN-pratham-medium",
+    "hi": _vikram() or "hi_IN-pratham-medium",
     "en": "en_IN-spicor-medium" if (ROOT / "models" / "piper" / "en_IN-spicor-medium.onnx").exists() else "en_US-ryan-medium",
 }
 

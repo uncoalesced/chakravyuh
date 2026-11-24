@@ -31,3 +31,13 @@ def test_piper_voice_gives_16k_pcm_per_sentence():
         pytest.skip("Piper Hindi voice not downloaded")
     blocks = list(tts.synthesize("Ek minute sahab. Mera chashma nahi mil raha."))
     assert len(blocks) == 2 and all(len(b) % 2 == 0 and len(b) > 16000 for b in blocks)   # >0.5 s each
+
+def test_voice_selection_helpers(monkeypatch):
+    from chakravyuh.audio import tts
+    assert tts.first_voice("no_such_voice-medium") is None
+    assert tts.first_voice("no_such_voice-medium", "hi_IN-rohan-medium") in (None, "hi_IN-rohan-medium")
+    monkeypatch.setenv("CHAKRAVYUH_VOICE_HI", "raghunath_elderly_v2-medium")
+    assert tts.default_voice("hi") == "raghunath_elderly_v2-medium"
+    monkeypatch.delenv("CHAKRAVYUH_VOICE_HI")
+    assert tts.default_voice("hi") == tts.DEFAULT_VOICE["hi"]
+    assert any(k in "vikram_scammer-medium" for k in tts.CUSTOM_PROFILES)

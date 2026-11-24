@@ -4,6 +4,7 @@ first sentence while the rest is still being synthesised. Hindi voices get the t
 Voices live in models/piper/ (gitignored); see bench/README.md for the download.
 ponytail: resampling is linear interpolation (fine for a phone line); swap in a polyphase filter if it sounds rough."""
 import math
+import os
 import pathlib
 from typing import Iterator
 
@@ -11,10 +12,26 @@ from chakravyuh.audio.source import SAMPLE_RATE
 from chakravyuh.audio.translit import to_devanagari
 
 VOICES = pathlib.Path(__file__).parents[3] / "models" / "piper"
+# Trained persona voices, matched by filename substring: (length_scale, noise_scale, noise_w_scale). Retune by ear.
+CUSTOM_PROFILES = {
+    "raghunath": (1.05, 0.75, 0.80),   # elderly victim, slower
+    "vikram": (0.95, 0.70, 0.80),      # scammer caller, brisk
+    "custom": (1.0, 0.75, 0.80),
+}
 DEFAULT_VOICE = {
     "hi": "raghunath_elderly-medium" if (VOICES / "raghunath_elderly-medium.onnx").exists() else "hi_IN-rohan-medium",
     "en": "en_IN-spicor-medium" if (VOICES / "en_IN-spicor-medium.onnx").exists() else "en_GB-alan-medium",
 }
+
+
+def first_voice(*names):
+    """First voice that is installed in models/piper/, else None (callers pick their own fallback)."""
+    return next((n for n in names if (VOICES / f"{n}.onnx").exists()), None)
+
+
+def default_voice(lang):
+    """Persona voice for `lang`. CHAKRAVYUH_VOICE_HI / _EN overrides it, e.g. to A/B raghunath_elderly_v2-medium."""
+    return os.environ.get(f"CHAKRAVYUH_VOICE_{lang.upper()}") or DEFAULT_VOICE.get(lang)
 
 
 class PiperTTS:
@@ -24,7 +41,7 @@ class PiperTTS:
         import scipy.signal
         from piper import PiperVoice, SynthesisConfig
         self._np, self._signal = np, scipy.signal
-        name = voice or DEFAULT_VOICE.get(lang)
+        name = voice or default_voice(lang)
         if not name:
             raise ValueError(f"no default Piper voice for lang={lang!r}; pass voice=")
         path = pathlib.Path(name) if pathlib.Path(name).suffix == ".onnx" else VOICES / f"{name}.onnx"
@@ -33,16 +50,18 @@ class PiperTTS:
         self.voice = PiperVoice.load(str(path))
         self.rate = self.voice.config.sample_rate
         self.devanagari = self.voice.config.espeak_voice.startswith("hi")
-        self.is_custom = "raghunath" in str(path).lower() or "custom" in str(path).lower()
+        profile = next((p for k, p in CUSTOM_PROFILES.items() if k in path.name.lower()), None)
+        self.is_custom = profile is not None
         self.elderly = elderly and not self.is_custom
         self.phone_filter = phone_filter
 
         if self.is_custom:
-            # Custom trained persona voice (e.g., Raghunath): pitch and persona already acted
+            # Custom trained persona voice: pitch and persona already acted, so no DSP; profile gives the defaults
             self.pitch_shift = 1.0
-            eff_length = length_scale if length_scale is not None else 1.05
-            ns = noise_scale if noise_scale is not None else 0.75
-            nws = noise_w_scale if noise_w_scale is not None else 0.80
+            p_len, p_ns, p_nws = profile
+            eff_length = length_scale if length_scale is not None else p_len
+            ns = noise_scale if noise_scale is not None else p_ns
+            nws = noise_w_scale if noise_w_scale is not None else p_nws
         elif self.elderly:
             # Stock voice fallback with heuristic DSP modulation
             self.pitch_shift = 0.86  # ~2.6 semitones down
