@@ -1,6 +1,6 @@
 # Jammy's Task Backlog & Acceptance Criteria
 
-Milestones anchored to Hackathon submission: **23 Oct 2026, 5:00 pm IST**.
+No fixed deadline.
 
 ---
 
@@ -80,12 +80,6 @@ Milestones anchored to Hackathon submission: **23 Oct 2026, 5:00 pm IST**.
 
 ---
 
-## Phase 5: Rehearsal, Buffer & Submission (Due Oct 23, 5:00 pm IST)
-- [ ] **T5.1 Demo Rehearsal**:
-  - Rehearse live audible demo >= 20 times across both English (`kyc_block`) and Hindi (`digital_arrest`) scenarios.
-  - Fallback check: Verify text replay fallback (`--corpus kyc_block --speed 1.5`) and record fallback video.
+## Phase 5: Deliverables
 - [x] **T5.2 Devpost & Presentation Deliverables** (Joel):
   - Prepare Devpost project description, architecture overview, and pitch deck narrative grounded in `docs/PROBLEM.md` and `docs/GUARDRAILS.md` (completed in `docs/DEVPOST.md`).
-- [ ] **T5.3 Administrative & Registration Verification**:
-  - Verify offline registration form submission on `nextgenexpo.raaif.org`.
-  - Confirm table logistics, power, audio equipment policy, and college team credentials with RAAIF organisers.

@@ -52,6 +52,18 @@ Hindi turns are longer and whisper spends longer on them.
 | Reply ready (endpoint to real reply queued) | 1062 ms | 5625 ms | |
 | **Turn gap (caller hears first audio)** | **641 ms** | **657 ms** | **p50 < 1.2 s** |
 
+### Demo laptop re-run (25 Nov 2026)
+`python bench/latency.py --corpus kyc_block --whisper small --device cuda --label "demo laptop"` · whisper small CUDA · scripted persona · 11/11 turns answered · log `latency_kyc_block_20261125_012842.json`
+
+| Stage | p50 | p90 |
+|---|---|---|
+| Endpoint wait (VAD silence) | 608 ms | 608 ms |
+| Speech to text | 471 ms | 771 ms |
+| Reply ready | 891 ms | 1110 ms |
+| **Turn gap (caller hears first audio)** | **406 ms** | **484 ms** |
+
+Full headless `--demo` runs the same day: `kyc_block` 11/11 answered, gap p50 0.39 s; `digital_arrest` (Hindi, whisper base) 11/11 answered, gap p50 0.48 s.
+
 ## What the breakdown says
 - **Endpoint wait is fixed at 600 ms**, set by T1.1's "pause > 600 ms" rule, and already twice the 300 ms budget. Dropping it
   to ~400 ms saves 200 ms on every turn but splits more dictated IDs across turns (see `bench/README.md`).

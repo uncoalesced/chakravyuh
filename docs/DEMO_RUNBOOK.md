@@ -2,7 +2,7 @@
 
 The live demonstration for judges: a simulated scam call that Chakravyuh answers and runs to the end with no human input,
 while the dashboard shows the persona's state, the conversation and the details being captured. About 4 minutes per
-judge group, including a short intro. Rehearse at least 20 times between phases 3 and 5 (docs/MILESTONES.md).
+judge group, including a short intro.
 
 ## What the judges see
 
@@ -21,10 +21,12 @@ If asked about speed, quote the measured number from `docs/BENCHMARKS.md`, for t
 ## The day before
 - [ ] `git pull`, then `pip install -e ".[dev,audio,dashboard]"` and `pip install silero-vad --no-deps sounddevice`.
 - [ ] Models in `models/piper/`: `hi_IN-rohan-medium`, `hi_IN-pratham-medium`, `en_GB-alan-medium`, `en_US-ryan-medium`
+      Optional custom voices: `raghunath_elderly-medium` (Hindi persona), `vikram_scammer-medium` (Hindi caller);
+      override with `CHAKRAVYUH_VOICE_HI` / `CHAKRAVYUH_VOICE_EN`.
       (`.onnx` + `.onnx.json`). Optional: `en_IN-spicor-medium` (Indian English, used for both English voices when
       present; not in the official Piper catalogue, so get the file and its licence from Joel). Without it the English
       voices fall back to alan / ryan. Whisper weights cached by one run of `bench/stt_bench.py` or the demo itself.
-- [x] `pytest -q` is green across all 123 tests.
+- [x] `pytest -q` is green across all 126 tests.
 - [ ] `cd dashboard/web && npm install && npm run build`.
 - [ ] Run the full demo twice on the demo laptop, once per script. Watch for: every turn answered, report card appears.
 - [ ] Run `python bench/latency.py --corpus kyc_block --whisper small --device cuda --label "demo laptop"` and copy the

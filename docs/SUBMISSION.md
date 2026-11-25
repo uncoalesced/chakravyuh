@@ -11,7 +11,6 @@ public services). Chakravyuh is a speech-and-agent system that assists people ta
 
 ## Facts from the pages
 - Event: 23-25 Oct 2026, Tripura Vasini Palace Grounds, Bengaluru. Organiser: RAAIF.
-- Deadline: 23 Oct 2026, 5:00 pm IST (Devpost).
 - Team size: 2 to 4 on Devpost ("1 - 4" on the track page). We are 2.
 - Eligibility: "Colleges & Startups" on the track page; "ALL students" on the rules page.
 - Judging focus: innovation, problem relevance, technical implementation, functionality, real-world impact.

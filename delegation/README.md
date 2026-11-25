@@ -1,6 +1,6 @@
 # Jammy's Delegation Hub - Chakravyuh
 
-Welcome Jammy! This folder is your mission control for **Chakravyuh**—an open-source (MIT) counter-scam voice agent for India targeting the **Next Gen Hackathon 2026 Bengaluru** (Deadline: **23 Oct 2026, 5:00 pm IST**).
+Welcome Jammy! This folder is your mission control for **Chakravyuh**—an open-source (MIT) counter-scam voice agent for India.
 
 We operate on a strict **50/50 split** of work and responsibilities.
 

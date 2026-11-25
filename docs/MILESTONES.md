@@ -1,8 +1,6 @@
 # Milestones
 
-Anchored to the real deadline: submission closes **23 Oct 2026, 5:00 pm IST** (event 23-25 Oct 2026, Tripura Vasini
-Palace Grounds, Bengaluru). Read from the official Devpost page on 2 Oct 2026. Target: submit by noon IST on 23 Oct.
-Plan written 2 Oct 2026; 21 days remain.
+Phase plan for the project. No fixed deadline; dates below are historical.
 
 | Phase | Dates (IST) | Joel | Jammy | Exit check |
 |---|---|---|---|---|
@@ -10,10 +8,9 @@ Plan written 2 Oct 2026; 21 days remain.
 | 1 Components | Mon 5 - Fri 9 Oct | Persona prompts en/hi tuned on the real model, filter hardening, corpus A extended | VAD endpointing, streaming STT, Piper TTS, playback queue with barge-in cancel | Each part demoed standalone |
 | 2 Vertical slice | Sat 10 - Wed 14 Oct | Metrics model, report wiring, LLM latency tuning | Dashboard + live event feed, virtual-caller source | Scripted caller -> persona -> intel on dashboard, end to end |
 | 3 Real line | Thu 15 - Sun 18 Oct | Corpus A final, edge cases from real ASR output | Phone bridge (cable or fallback), latency harness, corpus B | Measured turn-gap p50 recorded; phone demo works once |
-| 4 Polish + docs | Mon 19 - Wed 21 Oct | Problem-definition doc, pitch narrative | Architecture + data-loop diagram exports, demo runbook | All `SUBMISSION.md` items ticked; **code freeze Wed 21 Oct night** |
-| 5 Buffer + submit | Thu 22 - Fri 23 Oct | Rehearsal, fixes only | Rehearsal, fixes only | Devpost submitted, offline registration confirmed |
+| 4 Polish + docs | Mon 19 - Wed 21 Oct | Problem-definition doc, pitch narrative | Architecture + data-loop diagram exports, demo runbook | All `SUBMISSION.md` items ticked |
 
-Rehearse the live demo at least 20 times across phases 3-5. Daily 10-minute sync; blockers raised the same day.
+Daily 10-minute sync; blockers raised the same day.
 
 ## Risks
 | Risk | Mitigation |
